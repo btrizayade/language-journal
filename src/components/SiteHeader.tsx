@@ -33,7 +33,7 @@ export function SiteHeader() {
     <header ref={headerRef} className="site-chrome storybook-topbar sticky top-0 z-40">
       <div className="topbar-inner mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-6 py-3">
         <Link to="/" className="topbar-brand flex shrink-0 items-center gap-2 font-display text-2xl italic">
-          <img src="/favicon.svg" width={34} height={34} alt="" aria-hidden />Language Journal
+          <img src="/favicon.png" width={34} height={34} alt="" aria-hidden />Language Journal
         </Link>
         <div className="topbar-controls flex flex-wrap items-center gap-2">
           <nav aria-label={t("nav.label")} className="topbar-nav flex flex-wrap gap-1 text-sm">
