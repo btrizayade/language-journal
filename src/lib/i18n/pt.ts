@@ -108,7 +108,7 @@ export const pt = {
   "entries.previous": "Versões anteriores",
   "entries.original": "Original",
   "entries.version": "Versão {n}",
-  "progress.intro": "Sem pontos, sem rankings — só o caminho que você já percorreu.",
+  "progress.intro": "O caminho que você já percorreu fica registrado aqui.",
   "progress.active": "Diários ativos",
   "progress.completed": "Episódios concluídos",
   "progress.saved": "Entradas guardadas",
