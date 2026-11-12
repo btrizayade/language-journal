@@ -158,6 +158,9 @@ const rows = {
   "account.deleteBody": ["Isto apaga para sempre sua conta e todas as escritas, palavras, notas e progresso guardados nela. Para confirmar, digite EXCLUIR.", "This permanently deletes your account and all writing, words, notes and progress stored in it. To confirm, type DELETE.", "Cela supprime définitivement votre compte et tous les écrits, mots, notes et progrès. Pour confirmer, tapez SUPPRIMER.", "Damit werden dein Konto und alle Texte, Wörter, Notizen und Fortschritte endgültig gelöscht. Tippe zur Bestätigung LÖSCHEN.", "Esto borra para siempre tu cuenta y todos los escritos, palabras, notas y progreso. Para confirmar, escribe ELIMINAR."],
   "account.deleteWord": ["EXCLUIR", "DELETE", "SUPPRIMER", "LÖSCHEN", "ELIMINAR"],
   "account.deleted": ["Conta excluída.", "Account deleted.", "Compte supprimé.", "Konto gelöscht.", "Cuenta eliminada."],
+  "entries.unavailable": ["Esta entrada pertence a um episódio que não está mais disponível. Seu texto foi preservado.", "This entry belongs to an episode that is no longer available. Your writing has been kept.", "Cette entrée appartient à un épisode qui n'est plus disponible. Votre texte a été conservé.", "Dieser Eintrag gehört zu einer Folge, die nicht mehr verfügbar ist. Dein Text bleibt erhalten.", "Esta entrada pertenece a un episodio que ya no está disponible. Tu texto se ha conservado."],
+  "account.wrongPassword": ["A senha atual não confere.", "The current password is incorrect.", "Le mot de passe actuel est incorrect.", "Das aktuelle Passwort ist falsch.", "La contraseña actual no es correcta."],
+  "entries.unknownStory": ["História indisponível", "Unavailable story", "Histoire indisponible", "Geschichte nicht verfügbar", "Historia no disponible"],
 } as const satisfies Record<string, readonly [string, string, string, string, string]>;
 
 export type ExtraKey = keyof typeof rows;

@@ -34,10 +34,10 @@ function EntriesPage() {
   const list = useMemo(() => {
     const l = s.entries.filter((e) => {
       const j = getJournal(e.journalId);
-      return j && (journal === "all" || j.id === journal) && (lang === "all" || j.languageCode === lang)
+      return (journal === "all" || j?.id === journal) && (lang === "all" || j?.languageCode === lang)
         && (period === "all" || Date.now() - new Date(e.updatedAt).getTime() <= Number(period) * 864e5);
     });
-    const num = (e: Entry) => getEpisode(getJournal(e.journalId)!, e.episodeId)?.number ?? 0;
+    const num = (e: Entry) => { const j = getJournal(e.journalId); return (j && getEpisode(j, e.episodeId)?.number) ?? 0; };
     return l.sort((a, b) => order === "episode" ? a.journalId.localeCompare(b.journalId) || num(a) - num(b)
       : order === "new" ? b.createdAt.localeCompare(a.createdAt) : a.createdAt.localeCompare(b.createdAt));
   }, [s.entries, journal, lang, order, period]);
@@ -94,7 +94,8 @@ function EntriesPage() {
       ) : (
         <ul className="mt-10 space-y-4">
           {list.map((e) => {
-            const j = getJournal(e.journalId)!, ep = getEpisode(j, e.episodeId)!;
+            const j = getJournal(e.journalId), ep = j && getEpisode(j, e.episodeId);
+            if (!j || !ep) return <OrphanEntry key={e.id} e={e} />;
             const isOpen = open === e.id;
             return (
               <li key={e.id} className="rounded-xl border bg-card">
@@ -137,9 +138,23 @@ function EntriesPage() {
   );
 }
 
+/** Entries whose story or episode no longer exists stay visible and read-only; nothing is deleted. */
+function OrphanEntry({ e }: { e: Entry }) {
+  const { t, date: fmt } = useI18n();
+  return (
+    <li className="rounded-xl border border-dashed bg-card p-5">
+      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{t("entries.unknownStory")} · {fmt(e.createdAt)} · {t("common.words", { n: countWords(e.content) })}</p>
+      <p role="note" className="mt-2 text-sm text-muted-foreground">{t("entries.unavailable")}</p>
+      <p className="mt-3 whitespace-pre-wrap font-serif text-lg">{e.content}</p>
+      {e.revisions.map((r, i) => <p key={i} className="mt-3 rounded-lg bg-muted p-3 whitespace-pre-wrap font-serif">{fmt(r.date)} — {r.content}</p>)}
+    </li>
+  );
+}
+
 function Sample({ e }: { e: Entry }) {
   const { t, date: fmt } = useI18n();
-  const j = getJournal(e.journalId)!, ep = getEpisode(j, e.episodeId)!;
+  const j = getJournal(e.journalId), ep = j && getEpisode(j, e.episodeId);
+  if (!j || !ep) return <div className="rounded-lg bg-card p-5 border"><p className="text-xs text-muted-foreground">{t("entries.unknownStory")} · {fmt(e.createdAt)}</p><p className="mt-3 whitespace-pre-wrap font-serif text-lg">{e.content}</p></div>;
   return (
     <div className="rounded-lg bg-card p-5 border">
       <p className="text-xs text-muted-foreground">{j.title} · {t("common.epShort", { n: ep.number })} · {fmt(e.createdAt)} · {t("common.words", { n: countWords(e.content) })}</p>

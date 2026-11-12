@@ -44,7 +44,7 @@ export function ContinueLearning() {
           <p className={kicker}>{t("cont.drafts")}</p>
           {drafts.length || pendingActs.length ? (
             <ul className="mt-2 space-y-2">
-              {drafts.map((d) => { const j = getJournal(d.journalId)!, ep = getEpisode(j, d.episodeId)!; return (
+              {drafts.map((d) => { const j = getJournal(d.journalId), ep = j && getEpisode(j, d.episodeId); if (!j || !ep) return null; return (
                 <li key={d.id}><Link to="/episodio/$journalId/$episodeId" params={{ journalId: j.id, episodeId: ep.id }} hash="escrever" className="hover:underline">{ep.prompt.title}</Link> <span className="text-xs text-muted-foreground">· {t("status.draft")}</span></li>
               ); })}
               {pendingActs.map(({ j, ep }) => (

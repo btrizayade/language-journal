@@ -41,6 +41,9 @@ export function AccountSection() {
   const changePw = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
+    // Confirm the current password first, so an unattended open session can't be used to change it.
+    const check = await supabase.auth.signInWithPassword({ email: user.email ?? "", password: cur });
+    if (check.error) { setBusy(false); toast.error(t("account.wrongPassword")); return; }
     const { error } = await supabase.auth.updateUser({ password: pw, current_password: cur } as never);
     setBusy(false);
     if (error) { toast.error(error.message || t("auth.error")); return; }

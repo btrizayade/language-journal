@@ -47,6 +47,11 @@ function load() {
   if (loaded || typeof window === "undefined") return;
   loaded = true;
   try {
+    // A stored session means this browser belongs to an account: start from that account's local copy,
+    // so anything done before the cloud answers never leaks into the guest area.
+    const tokenKey = Object.keys(localStorage).find((k) => /^sb-.*-auth-token$/.test(k));
+    const uid = tokenKey && (JSON.parse(localStorage.getItem(tokenKey) ?? "null")?.user?.id as string | undefined);
+    if (uid) KEY = `language-journal:user:${uid}`;
     const raw = localStorage.getItem(KEY);
     if (raw) { const r = JSON.parse(raw); state = { ...empty, ...r, vocab: dedupeVocab((r.vocab ?? []).map(normalizeVocab)) }; }
   } catch { /* ignore */ }
@@ -66,6 +71,8 @@ export const normalizeState = (r: Partial<State>): State => ({ ...empty, ...r, v
 export function readSaved(key: string): State | null {
   try { const raw = localStorage.getItem(key); return raw ? normalizeState(JSON.parse(raw)) : null; } catch { return null; }
 }
+/** The storage key currently in use (guest or a specific account). */
+export const currentKey = () => { load(); return KEY; };
 export const getState = () => { load(); return state; };
 /** Switches the active data (guest ↔ account). Does not trigger sync hooks. */
 export function swapState(next: State, key: string) {

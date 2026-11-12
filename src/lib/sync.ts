@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { emptyState, getState, GUEST_KEY, hasData, normalizeState, onStoreChange, readSaved, swapState, type Entry, type State } from "./store";
+import { currentKey, emptyState, getState, GUEST_KEY, hasData, normalizeState, onStoreChange, readSaved, swapState, type Entry, type State } from "./store";
 import { mergeStates } from "./merge";
 import { getPrefs, onPrefsChange, setPrefs, type Prefs } from "./i18n";
 import { getReading, onReadingChange, setReading, type ReadingPrefs } from "./reading";
@@ -102,9 +102,13 @@ async function pushPrefs() {
 async function signedIn(user: User) {
   setInfo({ user, status: "loading" });
   try {
+    // Only an untouched copy of this same account may be replaced; anything done while loading is merged in.
+    const local = currentKey() === userKey(user.id) ? getState() : null;
     const cloud = await pull(user.id);
     synced = cloud.state;
-    swapState(cloud.state, userKey(user.id));
+    const after = currentKey() === userKey(user.id) ? getState() : null;
+    swapState(after && after !== local ? mergeStates(cloud.state, after) : cloud.state, userKey(user.id));
+    if (getState() !== synced) schedule();
     if (cloud.prefs) setPrefs(cloud.prefs, true); else void pushPrefs();
     if (cloud.reading) setReading(cloud.reading, true);
     const guest = readSaved(GUEST_KEY);

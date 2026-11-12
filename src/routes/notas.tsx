@@ -55,8 +55,8 @@ function NotesPage() {
         {marks.length === 0 ? <p className="mt-4 text-muted-foreground">{t("notes.bookmarksEmpty")}</p> : (
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {marks.map(({ jid, eid, at }) => {
-              const j = getJournal(jid)!, ep = getEpisode(j, eid);
-              if (!ep) return null;
+              const j = getJournal(jid), ep = j && getEpisode(j, eid);
+              if (!j || !ep) return null;
               return (
                 <li key={`${jid}/${eid}`} className="flex items-start gap-3 rounded-lg border bg-card p-4">
                   <button onClick={() => toggleBookmark(jid, eid)} aria-label={t("notes.removeBookmark")} className="rounded-full p-1 hover:bg-muted"><BookmarkCheck className="size-5 text-sage-deep" /></button>
@@ -85,16 +85,16 @@ function NotesPage() {
 function PassageCard({ p }: { p: Passage }) {
   const { t, date } = useI18n();
   const [note, setNote] = useState(p.note);
-  const j = getJournal(p.journalId)!, ep = getEpisode(j, p.episodeId);
+  const j = getJournal(p.journalId), ep = j ? getEpisode(j, p.episodeId) : undefined;
   return (
     <li className="rounded-xl border bg-card p-6">
-      <blockquote lang={j.languageCode} className="border-l-2 border-lavender pl-4 font-serif text-xl italic leading-relaxed">{p.text}</blockquote>
+      <blockquote lang={j?.languageCode} className="border-l-2 border-lavender pl-4 font-serif text-xl italic leading-relaxed">{p.text}</blockquote>
       <label className="mt-4 block text-sm text-muted-foreground">{t("notes.yourNote")}
         <textarea value={note} onChange={(e) => setNote(e.target.value)} onBlur={() => { if (note !== p.note) { updatePassage(p.id, note); toast.success(t("notes.noteSaved")); } }}
           rows={2} placeholder={t("notes.notePlaceholder")} className="mt-1 w-full rounded-md border bg-background px-3 py-2 font-serif text-base text-foreground" />
       </label>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm">
-        {ep ? <Link to="/episodio/$journalId/$episodeId" params={{ journalId: j.id, episodeId: ep.id }} className="text-muted-foreground underline hover:text-foreground">{j.title} · {t("common.epShort", { n: ep.number })} · {date(p.createdAt)}</Link> : <span />}
+        {j && ep ? <Link to="/episodio/$journalId/$episodeId" params={{ journalId: j.id, episodeId: ep.id }} className="text-muted-foreground underline hover:text-foreground">{j.title} · {t("common.epShort", { n: ep.number })} · {date(p.createdAt)}</Link> : <span />}
         <button onClick={() => { if (confirm(t("notes.confirmDelete"))) deletePassage(p.id); }} className="text-destructive underline">{t("common.delete")}</button>
       </div>
     </li>
