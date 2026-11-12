@@ -31,7 +31,7 @@ function Library() {
 
   return (
     <div className="mx-auto max-w-6xl px-6">
-      <section className="relative py-12 md:py-20">
+      <section className="relative overflow-clip py-12 md:py-20">
         <img src={libraryHero} alt="" aria-hidden="true" width={1920} height={960} fetchPriority="high"
           className="pointer-events-none absolute inset-y-0 right-[-18%] hidden h-full w-auto max-w-none object-contain opacity-95 md:block [mask-image:linear-gradient(to_right,transparent,black_30%)]" />
         <img src={libraryHero} alt="" aria-hidden="true" width={1920} height={960}
