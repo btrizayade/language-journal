@@ -5,7 +5,8 @@ import { useStore, completedEpisodes } from "@/lib/store";
 import { ContinueLearning } from "@/components/ContinueLearning";
 import { BookCard } from "@/components/BookCard";
 import { useI18n } from "@/lib/i18n";
-import { LibraryDoodle, Sparkle, WashiTape, StampBadge } from "@/components/ui/scrapbook";
+import { WashiTape, StampBadge } from "@/components/ui/scrapbook";
+import libraryHero from "@/assets/library-hero.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,16 +31,15 @@ function Library() {
 
   return (
     <div className="mx-auto max-w-6xl px-6">
-      <section className="relative py-16 md:py-24 grid gap-10 md:grid-cols-[1fr_auto] items-center">
-        <div className="max-w-3xl animate-fade-up">
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("library.kicker")}</p>
-        <h1 className="mt-4 text-5xl md:text-6xl leading-[1.05]">{t("library.title1")} <em className="text-sage-deep">{t("library.title2")}</em></h1>
-        <p className="mt-6 font-serif text-xl leading-relaxed text-muted-foreground">{t("library.intro")}</p>
-        </div>
-        <div className="relative mx-auto w-56 md:w-72">
-          <Sparkle className="absolute -top-2 left-4" />
-          <Sparkle className="absolute top-6 right-0 h-3 w-3" delay={1.2} />
-          <LibraryDoodle className="w-full" />
+      <section className="relative py-12 md:py-20">
+        <img src={libraryHero} alt="" aria-hidden="true" width={1920} height={960} fetchPriority="high"
+          className="pointer-events-none absolute inset-y-0 right-[-18%] hidden h-full w-auto max-w-none object-contain opacity-95 md:block [mask-image:linear-gradient(to_right,transparent,black_30%)]" />
+        <img src={libraryHero} alt="" aria-hidden="true" width={1920} height={960}
+          className="mb-8 w-full rounded-lg md:hidden" />
+        <div className="relative max-w-lg animate-fade-up">
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("library.kicker")}</p>
+          <h1 className="mt-4 text-5xl md:text-6xl leading-[1.05]">{t("library.title1")} <em className="text-sage-deep">{t("library.title2")}</em></h1>
+          <p className="mt-6 font-serif text-xl leading-relaxed text-muted-foreground">{t("library.intro")}</p>
         </div>
       </section>
 
