@@ -10,33 +10,90 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EntradasRouteImport } from './routes/entradas'
+import { Route as ProgressoRouteImport } from './routes/progresso'
+import { Route as DiarioJournalIdRouteImport } from './routes/diario.$journalId'
+import { Route as EpisodioJournalIdEpisodeIdRouteImport } from './routes/episodio.$journalId.$episodeId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EntradasRoute = EntradasRouteImport.update({
+  id: '/entradas',
+  path: '/entradas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgressoRoute = ProgressoRouteImport.update({
+  id: '/progresso',
+  path: '/progresso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiarioJournalIdRoute = DiarioJournalIdRouteImport.update({
+  id: '/diario/$journalId',
+  path: '/diario/$journalId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EpisodioJournalIdEpisodeIdRoute =
+  EpisodioJournalIdEpisodeIdRouteImport.update({
+    id: '/episodio/$journalId/$episodeId',
+    path: '/episodio/$journalId/$episodeId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/entradas': typeof EntradasRoute
+  '/progresso': typeof ProgressoRoute
+  '/diario/$journalId': typeof DiarioJournalIdRoute
+  '/episodio/$journalId/$episodeId': typeof EpisodioJournalIdEpisodeIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/entradas': typeof EntradasRoute
+  '/progresso': typeof ProgressoRoute
+  '/diario/$journalId': typeof DiarioJournalIdRoute
+  '/episodio/$journalId/$episodeId': typeof EpisodioJournalIdEpisodeIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/entradas': typeof EntradasRoute
+  '/progresso': typeof ProgressoRoute
+  '/diario/$journalId': typeof DiarioJournalIdRoute
+  '/episodio/$journalId/$episodeId': typeof EpisodioJournalIdEpisodeIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/entradas'
+    | '/progresso'
+    | '/diario/$journalId'
+    | '/episodio/$journalId/$episodeId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/entradas'
+    | '/progresso'
+    | '/diario/$journalId'
+    | '/episodio/$journalId/$episodeId'
+  id:
+    | '__root__'
+    | '/'
+    | '/entradas'
+    | '/progresso'
+    | '/diario/$journalId'
+    | '/episodio/$journalId/$episodeId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EntradasRoute: typeof EntradasRoute
+  ProgressoRoute: typeof ProgressoRoute
+  DiarioJournalIdRoute: typeof DiarioJournalIdRoute
+  EpisodioJournalIdEpisodeIdRoute: typeof EpisodioJournalIdEpisodeIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +105,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/entradas': {
+      id: '/entradas'
+      path: '/entradas'
+      fullPath: '/entradas'
+      preLoaderRoute: typeof EntradasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/progresso': {
+      id: '/progresso'
+      path: '/progresso'
+      fullPath: '/progresso'
+      preLoaderRoute: typeof ProgressoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diario/$journalId': {
+      id: '/diario/$journalId'
+      path: '/diario/$journalId'
+      fullPath: '/diario/$journalId'
+      preLoaderRoute: typeof DiarioJournalIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/episodio/$journalId/$episodeId': {
+      id: '/episodio/$journalId/$episodeId'
+      path: '/episodio/$journalId/$episodeId'
+      fullPath: '/episodio/$journalId/$episodeId'
+      preLoaderRoute: typeof EpisodioJournalIdEpisodeIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EntradasRoute: EntradasRoute,
+  ProgressoRoute: ProgressoRoute,
+  DiarioJournalIdRoute: DiarioJournalIdRoute,
+  EpisodioJournalIdEpisodeIdRoute: EpisodioJournalIdEpisodeIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

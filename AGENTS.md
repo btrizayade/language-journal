@@ -28,3 +28,6 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Story content (journals, episodes, vocab, culture notes, prompts) lives as static data in src/lib/content.ts — it's predefined and consistent, not generated.
+- Learner data (entries with revisions, saved vocab, progress) goes through src/lib/store.ts; editing an entry pushes the prior text into `revisions` so originals are never lost.

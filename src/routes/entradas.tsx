@@ -1,0 +1,138 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { journals, languages, getJournal, getEpisode, countWords } from "@/lib/content";
+import { useStore, type Entry } from "@/lib/store";
+import { WritingStudio } from "@/components/WritingStudio";
+
+export const Route = createFileRoute("/entradas")({
+  head: () => ({
+    meta: [
+      { title: "Minhas entradas — Language Journal" },
+      { name: "description", content: "Todos os seus textos, organizados por diário, idioma e episódio, com versões anteriores preservadas." },
+      { property: "og:title", content: "Minhas entradas — Language Journal" },
+      { property: "og:description", content: "Seu arquivo pessoal de escrita em outros idiomas." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: EntriesPage,
+});
+
+const fmt = (d: string) => new Date(d).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+const sel = "rounded-md border bg-card px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-ring";
+
+function EntriesPage() {
+  const s = useStore();
+  const [journal, setJournal] = useState("all");
+  const [lang, setLang] = useState("all");
+  const [order, setOrder] = useState<"new" | "old" | "episode">("new");
+  const [open, setOpen] = useState<string | null>(null);
+  const [compare, setCompare] = useState<string[]>([]);
+
+  const list = useMemo(() => {
+    const l = s.entries.filter((e) => {
+      const j = getJournal(e.journalId);
+      return j && (journal === "all" || j.id === journal) && (lang === "all" || j.language === lang);
+    });
+    const num = (e: Entry) => getEpisode(getJournal(e.journalId)!, e.episodeId)?.number ?? 0;
+    return l.sort((a, b) => order === "episode" ? a.journalId.localeCompare(b.journalId) || num(a) - num(b)
+      : order === "new" ? b.createdAt.localeCompare(a.createdAt) : a.createdAt.localeCompare(b.createdAt));
+  }, [s.entries, journal, lang, order]);
+
+  const toggleCompare = (id: string) => setCompare((c) => c.includes(id) ? c.filter((x) => x !== id) : [...c.slice(-1), id]);
+  const compared = compare.map((id) => s.entries.find((e) => e.id === id)).filter(Boolean) as Entry[];
+
+  return (
+    <div className="mx-auto max-w-5xl px-6 py-14">
+      <h1 className="text-5xl">Minhas entradas</h1>
+      <p className="mt-4 font-serif text-xl text-muted-foreground">Tudo o que você escreveu, página por página. Ao editar, a versão original é preservada.</p>
+
+      <div className="mt-10 flex flex-wrap gap-3" role="group" aria-label="Filtros">
+        <label className="sr-only" htmlFor="f-j">Diário</label>
+        <select id="f-j" className={sel} value={journal} onChange={(e) => setJournal(e.target.value)}>
+          <option value="all">Todos os diários</option>
+          {journals.map((j) => <option key={j.id} value={j.id}>{j.title}</option>)}
+        </select>
+        <label className="sr-only" htmlFor="f-l">Idioma</label>
+        <select id="f-l" className={sel} value={lang} onChange={(e) => setLang(e.target.value)}>
+          <option value="all">Todos os idiomas</option>
+          {languages.map((l) => <option key={l}>{l}</option>)}
+        </select>
+        <label className="sr-only" htmlFor="f-o">Ordenar</label>
+        <select id="f-o" className={sel} value={order} onChange={(e) => setOrder(e.target.value as typeof order)}>
+          <option value="new">Mais recentes</option>
+          <option value="old">Mais antigas</option>
+          <option value="episode">Por episódio</option>
+        </select>
+      </div>
+
+      {compared.length === 2 && (
+        <section aria-label="Comparação" className="mt-10 rounded-xl border bg-secondary/50 p-6">
+          <div className="flex justify-between"><h2 className="text-2xl">Comparar textos</h2><button onClick={() => setCompare([])} className="text-sm underline">Fechar</button></div>
+          <div className="mt-4 grid gap-6 md:grid-cols-2">
+            {[...compared].sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((e) => <Sample key={e.id} e={e} />)}
+          </div>
+        </section>
+      )}
+
+      {list.length === 0 ? (
+        <div className="mt-16 rounded-xl border border-dashed p-12 text-center">
+          <p className="font-display text-2xl">Nenhuma página escrita ainda.</p>
+          <p className="mt-2 text-muted-foreground">Abra um episódio e complete a atividade de escrita.</p>
+          <Link to="/" className="mt-6 inline-flex rounded-full bg-primary px-5 py-2 text-primary-foreground">Ir para a biblioteca</Link>
+        </div>
+      ) : (
+        <ul className="mt-10 space-y-4">
+          {list.map((e) => {
+            const j = getJournal(e.journalId)!, ep = getEpisode(j, e.episodeId)!;
+            const isOpen = open === e.id;
+            return (
+              <li key={e.id} className="rounded-xl border bg-card">
+                <div className="flex flex-wrap items-start gap-4 p-5">
+                  <div className="flex-1 min-w-60">
+                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{j.title} · {j.language} · Ép. {ep.number}</p>
+                    <p className="mt-1 font-display text-xl">{ep.prompt.title}</p>
+                    <p className="text-sm text-muted-foreground">{fmt(e.createdAt)} · {countWords(e.content)} palavras · {e.status === "complete" ? "Concluída" : "Rascunho"}{e.revisions.length ? ` · ${e.revisions.length} versão(ões) anterior(es)` : ""}</p>
+                    {!isOpen && <p lang={j.languageCode} className="mt-3 font-serif text-lg line-clamp-2">{e.content}</p>}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={compare.includes(e.id)} onChange={() => toggleCompare(e.id)} /> Comparar</label>
+                    <button onClick={() => setOpen(isOpen ? null : e.id)} aria-expanded={isOpen} className="rounded-full border px-4 py-1.5 text-sm hover:bg-muted">{isOpen ? "Fechar" : "Abrir e editar"}</button>
+                  </div>
+                </div>
+                {isOpen && (
+                  <div className="border-t p-5 space-y-6">
+                    <WritingStudio journal={j} episode={ep} entry={e} />
+                    {e.revisions.length > 0 && (
+                      <div>
+                        <h3 className="text-xl">Versões anteriores</h3>
+                        <ol className="mt-3 space-y-3">
+                          {e.revisions.map((r, i) => (
+                            <li key={i} className="rounded-lg bg-muted p-4">
+                              <p className="text-xs text-muted-foreground">{i === 0 ? "Original" : `Versão ${i + 1}`} · {fmt(r.date)}</p>
+                              <p lang={j.languageCode} className="mt-2 whitespace-pre-wrap font-serif text-lg">{r.content}</p>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function Sample({ e }: { e: Entry }) {
+  const j = getJournal(e.journalId)!, ep = getEpisode(j, e.episodeId)!;
+  return (
+    <div className="rounded-lg bg-card p-5 border">
+      <p className="text-xs text-muted-foreground">{j.title} · Ép. {ep.number} · {fmt(e.createdAt)} · {countWords(e.content)} palavras</p>
+      <p lang={j.languageCode} className="mt-3 whitespace-pre-wrap font-serif text-lg leading-relaxed">{e.content}</p>
+    </div>
+  );
+}
