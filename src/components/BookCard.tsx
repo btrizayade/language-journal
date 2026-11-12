@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { Journal } from "@/lib/content";
+import { useI18n } from "@/lib/i18n";
 
 export function ProgressBar({ value, label }: { value: number; label: string }) {
   return (
@@ -12,6 +13,7 @@ export function ProgressBar({ value, label }: { value: number; label: string }) 
 }
 
 export function BookCard({ journal, done }: { journal: Journal; done: number }) {
+  const { t, langName } = useI18n();
   const main = journal.characters.find((c) => c.main);
   const total = journal.episodes.length;
   return (
@@ -20,12 +22,12 @@ export function BookCard({ journal, done }: { journal: Journal; done: number }) 
         <img src={journal.cover} alt="" width={768} height={1024} loading="lazy" className="aspect-[3/4] w-full object-cover" />
       </div>
       <div className="mt-4 space-y-2">
-        <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{journal.language} · {journal.level}</p>
+        <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{langName(journal.languageCode)} · {journal.level}</p>
         <h3 className="text-2xl leading-tight">{journal.title}</h3>
-        <p className="text-sm text-muted-foreground">com {main?.name}</p>
+        <p className="text-sm text-muted-foreground">{t("common.with", { name: main?.name ?? "" })}</p>
         <p className="font-serif text-[15px] leading-relaxed">{journal.tagline}</p>
-        <ProgressBar value={done / total} label={`Progresso em ${journal.title}`} />
-        <p className="text-xs text-muted-foreground">{done} de {total} episódios</p>
+        <ProgressBar value={done / total} label={t("common.progressIn", { title: journal.title })} />
+        <p className="text-xs text-muted-foreground">{t("common.episodes", { done, total })}</p>
       </div>
     </Link>
   );

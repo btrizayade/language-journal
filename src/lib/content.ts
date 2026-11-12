@@ -438,5 +438,5 @@ export const journals: Journal[] = [
 
 export const getJournal = (id: string) => journals.find((j) => j.id === id);
 export const getEpisode = (j: Journal, id: string) => j.episodes.find((e) => e.id === id);
-export const languages = Array.from(new Set(journals.map((j) => j.language)));
+export const languageCodes = Array.from(new Set(journals.map((j) => j.languageCode)));
 export const countWords = (t: string) => (t.trim() ? t.trim().split(/\s+/).length : 0);

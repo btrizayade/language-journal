@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EntradasRouteImport } from './routes/entradas'
+import { Route as PreferenciasRouteImport } from './routes/preferencias'
 import { Route as ProgressoRouteImport } from './routes/progresso'
 import { Route as DiarioJournalIdRouteImport } from './routes/diario.$journalId'
 import { Route as EpisodioJournalIdEpisodeIdRouteImport } from './routes/episodio.$journalId.$episodeId'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const EntradasRoute = EntradasRouteImport.update({
   id: '/entradas',
   path: '/entradas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreferenciasRoute = PreferenciasRouteImport.update({
+  id: '/preferencias',
+  path: '/preferencias',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProgressoRoute = ProgressoRouteImport.update({
@@ -45,6 +51,7 @@ const EpisodioJournalIdEpisodeIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/entradas': typeof EntradasRoute
+  '/preferencias': typeof PreferenciasRoute
   '/progresso': typeof ProgressoRoute
   '/diario/$journalId': typeof DiarioJournalIdRoute
   '/episodio/$journalId/$episodeId': typeof EpisodioJournalIdEpisodeIdRoute
@@ -52,6 +59,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/entradas': typeof EntradasRoute
+  '/preferencias': typeof PreferenciasRoute
   '/progresso': typeof ProgressoRoute
   '/diario/$journalId': typeof DiarioJournalIdRoute
   '/episodio/$journalId/$episodeId': typeof EpisodioJournalIdEpisodeIdRoute
@@ -60,6 +68,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/entradas': typeof EntradasRoute
+  '/preferencias': typeof PreferenciasRoute
   '/progresso': typeof ProgressoRoute
   '/diario/$journalId': typeof DiarioJournalIdRoute
   '/episodio/$journalId/$episodeId': typeof EpisodioJournalIdEpisodeIdRoute
@@ -69,6 +78,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/entradas'
+    | '/preferencias'
     | '/progresso'
     | '/diario/$journalId'
     | '/episodio/$journalId/$episodeId'
@@ -76,6 +86,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/entradas'
+    | '/preferencias'
     | '/progresso'
     | '/diario/$journalId'
     | '/episodio/$journalId/$episodeId'
@@ -83,6 +94,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/entradas'
+    | '/preferencias'
     | '/progresso'
     | '/diario/$journalId'
     | '/episodio/$journalId/$episodeId'
@@ -91,6 +103,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EntradasRoute: typeof EntradasRoute
+  PreferenciasRoute: typeof PreferenciasRoute
   ProgressoRoute: typeof ProgressoRoute
   DiarioJournalIdRoute: typeof DiarioJournalIdRoute
   EpisodioJournalIdEpisodeIdRoute: typeof EpisodioJournalIdEpisodeIdRoute
@@ -110,6 +123,13 @@ declare module '@tanstack/react-router' {
       path: '/entradas'
       fullPath: '/entradas'
       preLoaderRoute: typeof EntradasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preferencias': {
+      id: '/preferencias'
+      path: '/preferencias'
+      fullPath: '/preferencias'
+      preLoaderRoute: typeof PreferenciasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/progresso': {
@@ -139,6 +159,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EntradasRoute: EntradasRoute,
+  PreferenciasRoute: PreferenciasRoute,
   ProgressoRoute: ProgressoRoute,
   DiarioJournalIdRoute: DiarioJournalIdRoute,
   EpisodioJournalIdEpisodeIdRoute: EpisodioJournalIdEpisodeIdRoute,

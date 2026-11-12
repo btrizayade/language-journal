@@ -31,3 +31,4 @@ use the editor.
 
 - Story content (journals, episodes, vocab, culture notes, prompts) lives as static data in src/lib/content.ts — it's predefined and consistent, not generated.
 - Learner data (entries with revisions, saved vocab, progress) goes through src/lib/store.ts; editing an entry pushes the prior text into `revisions` so originals are never lost.
+- Interface text lives in src/lib/i18n (pt.ts is the typed base, other locales must match its keys; pt-BR is the fallback); story text in content.ts is never translated, and explanations fall back to Portuguese when no localized version exists.

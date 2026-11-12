@@ -14,22 +14,24 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Toaster } from "@/components/ui/sonner";
+import { useI18n } from "@/lib/i18n";
 
 function NotFoundComponent() {
+  const { t } = useI18n();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Página não encontrada</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">{t("notFound.title")}</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Esta página não existe ou foi movida.
+          {t("notFound.body")}
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Voltar à biblioteca
+            {t("notFound.back")}
           </Link>
         </div>
       </div>
@@ -40,6 +42,7 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
+  const { t } = useI18n();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
@@ -48,10 +51,10 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          {t("error.title")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          {t("error.body")}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -61,13 +64,13 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            {t("error.retry")}
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Voltar à biblioteca
+            {t("notFound.back")}
           </a>
         </div>
       </div>
@@ -123,14 +126,16 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { t, locale } = useI18n();
+  useEffect(() => { document.documentElement.lang = locale; }, [locale]);
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground">Pular para o conteúdo</a>
+      <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground">{t("nav.skip")}</a>
       <SiteHeader />
       <main id="conteudo"><Outlet /></main>
-      <footer className="mx-auto max-w-6xl px-6 py-12 text-sm text-muted-foreground border-t mt-20">Language Journal — histórias para aprender, páginas para escrever.</footer>
+      <footer className="mx-auto max-w-6xl px-6 py-12 text-sm text-muted-foreground border-t mt-20">{t("footer.tagline")}</footer>
       <Toaster />
     </QueryClientProvider>
   );

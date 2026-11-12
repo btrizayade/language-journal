@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { journals } from "@/lib/content";
 import { useStore, completedEpisodes } from "@/lib/store";
 import { ProgressBar } from "@/components/BookCard";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/progresso")({
   head: () => ({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/progresso")({
 
 function ProgressPage() {
   const s = useStore();
+  const { t, langName, locale, num } = useI18n();
   const active = journals.filter((j) => s.lastVisit[j.id]);
   const completed = journals.reduce((n, j) => n + completedEpisodes(s, j.id).size, 0);
   const saved = s.entries.filter((e) => e.status === "complete").length;
@@ -29,29 +31,29 @@ function ProgressPage() {
     const start = new Date(end); start.setDate(start.getDate() - 6); start.setHours(0, 0, 0);
     const count = s.entries.filter((e) => { const d = new Date(e.createdAt); return d >= start && d <= end; }).length
       + s.entries.reduce((n, e) => n + e.revisions.filter((r) => { const d = new Date(r.date); return d >= start && d <= end; }).length, 0);
-    return { label: start.toLocaleDateString("pt-BR", { day: "numeric", month: "short" }), count };
+    return { label: start.toLocaleDateString(locale, { day: "numeric", month: "short" }), count };
   });
   const maxW = Math.max(1, ...weeks.map((w) => w.count));
 
   const stats = [
-    ["Diários ativos", active.length], ["Episódios concluídos", completed],
-    ["Entradas guardadas", saved], ["Palavras colecionadas", s.vocab.length],
+    [t("progress.active"), active.length], [t("progress.completed"), completed],
+    [t("progress.saved"), saved], [t("progress.words"), s.vocab.length],
   ] as const;
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-14">
-      <h1 className="text-5xl">Meu progresso</h1>
-      <p className="mt-4 font-serif text-xl text-muted-foreground">Sem pontos, sem rankings — só o caminho que você já percorreu.</p>
+      <h1 className="text-5xl">{t("nav.progress")}</h1>
+      <p className="mt-4 font-serif text-xl text-muted-foreground">{t("progress.intro")}</p>
 
       <dl className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
         {stats.map(([k, v]) => (
-          <div key={k} className="rounded-xl border bg-card p-5"><dt className="text-sm text-muted-foreground">{k}</dt><dd className="mt-2 font-display text-4xl">{v}</dd></div>
+          <div key={k} className="rounded-xl border bg-card p-5"><dt className="text-sm text-muted-foreground">{k}</dt><dd className="mt-2 font-display text-4xl">{num(v)}</dd></div>
         ))}
       </dl>
 
       <section className="mt-14" aria-labelledby="atividade">
-        <h2 id="atividade" className="text-3xl">Atividade de escrita</h2>
-        <p className="text-sm text-muted-foreground">Textos e revisões por semana, nas últimas 8 semanas.</p>
+        <h2 id="atividade" className="text-3xl">{t("progress.activity")}</h2>
+        <p className="text-sm text-muted-foreground">{t("progress.activityHint")}</p>
         <div className="mt-6 flex h-40 items-end gap-3 border-b pb-1">
           {weeks.map((w) => (
             <div key={w.label} className="flex flex-1 flex-col items-center gap-2">
@@ -64,7 +66,7 @@ function ProgressPage() {
       </section>
 
       <section className="mt-14" aria-labelledby="por-diario">
-        <h2 id="por-diario" className="text-3xl">Por diário</h2>
+        <h2 id="por-diario" className="text-3xl">{t("progress.byJournal")}</h2>
         <ul className="mt-6 space-y-4">
           {journals.map((j) => {
             const d = completedEpisodes(s, j.id).size;
@@ -73,8 +75,8 @@ function ProgressPage() {
                 <img src={j.cover} alt="" width={768} height={1024} className="w-14 aspect-[3/4] rounded-sm object-cover" />
                 <div className="flex-1">
                   <Link to="/diario/$journalId" params={{ journalId: j.id }} className="font-display text-xl hover:underline">{j.title}</Link>
-                  <p className="text-sm text-muted-foreground mb-2">{j.language} {j.level} · {d} de {j.episodes.length} episódios</p>
-                  <ProgressBar value={d / j.episodes.length} label={`Progresso em ${j.title}`} />
+                  <p className="text-sm text-muted-foreground mb-2">{langName(j.languageCode)} {j.level} · {t("common.episodes", { done: d, total: j.episodes.length })}</p>
+                  <ProgressBar value={d / j.episodes.length} label={t("common.progressIn", { title: j.title })} />
                 </div>
               </li>
             );
@@ -83,8 +85,8 @@ function ProgressPage() {
       </section>
 
       <section className="mt-14" aria-labelledby="vocab">
-        <h2 id="vocab" className="text-3xl">Vocabulário guardado</h2>
-        {s.vocab.length === 0 ? <p className="mt-4 text-muted-foreground">Toque no marcador ao lado de uma palavra num episódio para guardá-la aqui.</p> : (
+        <h2 id="vocab" className="text-3xl">{t("progress.vocab")}</h2>
+        {s.vocab.length === 0 ? <p className="mt-4 text-muted-foreground">{t("progress.vocabEmpty")}</p> : (
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {s.vocab.map((v) => {
               const j = journals.find((x) => x.id === v.journalId);

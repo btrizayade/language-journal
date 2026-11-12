@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Bookmark, BookmarkCheck, BookOpen, Headphones, Clapperboard } from "lucide-react";
-import { getJournal, getEpisode, FORMAT_LABEL, type Episode, type Journal } from "@/lib/content";
+import { getJournal, getEpisode, type Episode, type Journal } from "@/lib/content";
+import { useI18n } from "@/lib/i18n";
 import { useStore, markOpened, toggleVocab } from "@/lib/store";
 import { WritingStudio } from "@/components/WritingStudio";
 
@@ -32,6 +33,8 @@ function EpisodePage() {
   const j = getJournal(journalId)!;
   const e = getEpisode(j, episodeId)!;
   const s = useStore();
+  const { t, langName, explanation } = useI18n();
+  const ptOnly = explanation !== "pt-BR";
   useEffect(() => { markOpened(j.id, e.id); }, [j.id, e.id]);
   const idx = j.episodes.indexOf(e);
   const prev = j.episodes[idx - 1], next = j.episodes[idx + 1];
@@ -43,20 +46,21 @@ function EpisodePage() {
       <Link to="/diario/$journalId" params={{ journalId: j.id }} className="text-sm text-muted-foreground hover:text-foreground">← {j.title}</Link>
 
       <header className="mt-8 text-center">
-        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Episódio {e.number} de {j.episodes.length}</p>
+        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">{t("episode.of", { n: e.number, total: j.episodes.length })}</p>
         <h1 lang={j.languageCode} className="mt-3 text-5xl md:text-6xl">{e.title}</h1>
         <p className="mt-5 font-serif text-xl text-muted-foreground">{e.intro}</p>
         <div className="mt-6 flex justify-center gap-3 text-sm">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1"><Icon className="size-4" aria-hidden /> {FORMAT_LABEL[e.format]}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1"><Icon className="size-4" aria-hidden /> {t(`format.${e.format}`)}</span>
           <span className="rounded-full border px-3 py-1">{e.minutes} min</span>
-          <span className="rounded-full border px-3 py-1">{j.language} {j.level}</span>
+          <span className="rounded-full border px-3 py-1">{langName(j.languageCode)} {j.level}</span>
         </div>
         <p className="mx-auto mt-8 max-w-xl border-y py-4 font-serif italic">{e.context}</p>
       </header>
 
-      <section aria-label="Conteúdo do episódio" className="mt-12"><Media journal={j} episode={e} /></section>
+      <section aria-label={t("episode.content")} className="mt-12"><Media journal={j} episode={e} /></section>
 
-      <Section title="Descobrir a língua" kicker="Vocabulário · expressões · gramática">
+      <Section title={t("episode.langTitle")} kicker={t("episode.langKicker")}>
+        {ptOnly && <p role="note" className="mb-6 rounded-md bg-muted px-4 py-3 text-sm text-muted-foreground">{t("episode.explFallback")}</p>}
         <ul className="grid gap-3 sm:grid-cols-2">
           {e.vocabulary.map((v) => {
             const saved = s.vocab.some((x) => x.key === `${j.id}:${v.term}`);
@@ -65,10 +69,10 @@ function EpisodePage() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p lang={j.languageCode} className="font-display text-xl">{v.term}</p>
-                    <p className="text-muted-foreground">{v.translation}</p>
+                    <p lang="pt-BR" className="text-muted-foreground">{v.translation}</p>
                   </div>
                   <button onClick={() => toggleVocab({ journalId: j.id, episodeId: e.id, ...v })} aria-pressed={saved}
-                    aria-label={saved ? `Remover ${v.term} do vocabulário salvo` : `Salvar ${v.term}`}
+                    aria-label={saved ? t("episode.unsaveWord", { term: v.term }) : t("episode.saveWord", { term: v.term })}
                     className="rounded-full p-2 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">
                     {saved ? <BookmarkCheck className="size-5 text-sage-deep" /> : <Bookmark className="size-5" />}
                   </button>
@@ -78,18 +82,18 @@ function EpisodePage() {
             );
           })}
         </ul>
-        <h3 className="mt-10 text-2xl">Expressões úteis</h3>
+        <h3 className="mt-10 text-2xl">{t("episode.expressions")}</h3>
         <dl className="mt-4 divide-y border-y">
           {e.expressions.map((x) => (
             <div key={x.term} className="grid gap-1 py-3 sm:grid-cols-2">
-              <dt lang={j.languageCode} className="font-serif text-lg italic">{x.term}</dt><dd className="text-muted-foreground">{x.meaning}</dd>
+              <dt lang={j.languageCode} className="font-serif text-lg italic">{x.term}</dt><dd lang="pt-BR" className="text-muted-foreground">{x.meaning}</dd>
             </div>
           ))}
         </dl>
-        <h3 className="mt-10 text-2xl">Gramática em contexto</h3>
+        <h3 className="mt-10 text-2xl">{t("episode.grammar")}</h3>
         <div className="mt-4 space-y-6">
           {e.grammar.map((g) => (
-            <div key={g.title}>
+            <div key={g.title} lang="pt-BR">
               <p className="font-semibold">{g.title}</p>
               <p className="mt-1 font-serif text-lg leading-relaxed">{g.explanation}</p>
               <ul className="mt-2 space-y-1">{g.examples.map((x) => <li key={x} lang={j.languageCode} className="font-serif italic text-sage-deep">— {x}</li>)}</ul>
@@ -98,10 +102,10 @@ function EpisodePage() {
         </div>
       </Section>
 
-      <Section title="Notas culturais" kicker="O mundo ao redor da história">
+      <Section title={t("episode.cultureTitle")} kicker={t("episode.cultureKicker")}>
         <div className="space-y-4">
           {e.culture.map((c) => (
-            <aside key={c.title} className="rounded-lg bg-pink/40 p-6">
+            <aside key={c.title} lang="pt-BR" className="rounded-lg bg-pink/40 p-6">
               <p className="font-display text-xl">{c.title}</p>
               <p className="mt-2 font-serif text-lg leading-relaxed">{c.text}</p>
             </aside>
@@ -109,15 +113,15 @@ function EpisodePage() {
         </div>
       </Section>
 
-      <Section title="Escrever" kicker="Sua parte da história">
+      <Section title={t("episode.writeTitle")} kicker={t("episode.writeKicker")}>
         <WritingStudio journal={j} episode={e} entry={entry} />
-        {entry && <p className="mt-3 text-sm text-muted-foreground">Você já tem uma entrada para este episódio ({entry.status === "complete" ? "concluída" : "rascunho"}). Ao editar, a versão anterior fica guardada em <Link to="/entradas" className="underline">Minhas entradas</Link>.</p>}
+        {entry && <p className="mt-3 text-sm text-muted-foreground">{t("episode.existing", { status: entry.status === "complete" ? t("status.complete") : t("status.draft") })} <Link to="/entradas" className="underline">{t("nav.entries")}</Link>.</p>}
       </Section>
 
-      <nav aria-label="Episódios" className="mt-16 flex justify-between gap-4 border-t pt-8">
-        {prev ? <Link to="/episodio/$journalId/$episodeId" params={{ journalId: j.id, episodeId: prev.id }} className="hover:underline">← Ép. {prev.number} · {prev.title}</Link> : <span />}
-        {next ? <Link to="/episodio/$journalId/$episodeId" params={{ journalId: j.id, episodeId: next.id }} className="text-right font-semibold hover:underline">Ép. {next.number} · {next.title} →</Link>
-          : <Link to="/diario/$journalId" params={{ journalId: j.id }} className="hover:underline">Fim desta temporada · voltar ao diário</Link>}
+      <nav aria-label={t("episode.nav")} className="mt-16 flex justify-between gap-4 border-t pt-8">
+        {prev ? <Link to="/episodio/$journalId/$episodeId" params={{ journalId: j.id, episodeId: prev.id }} className="hover:underline">← {t("common.epShort", { n: prev.number })} · {prev.title}</Link> : <span />}
+        {next ? <Link to="/episodio/$journalId/$episodeId" params={{ journalId: j.id, episodeId: next.id }} className="text-right font-semibold hover:underline">{t("common.epShort", { n: next.number })} · {next.title} →</Link>
+          : <Link to="/diario/$journalId" params={{ journalId: j.id }} className="hover:underline">{t("episode.end")}</Link>}
       </nav>
     </article>
   );
@@ -134,9 +138,10 @@ function Section({ title, kicker, children }: { title: string; kicker: string; c
 }
 
 function Transcript({ journal, episode }: { journal: Journal; episode: Episode }) {
+  const { t } = useI18n();
   return (
     <div className="mt-6 rounded-lg border bg-card p-6 md:p-8">
-      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-4">Transcrição</p>
+      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-4">{t("episode.transcript")}</p>
       <dl lang={journal.languageCode} className="space-y-4">
         {episode.transcript?.map((t, i) => (
           <div key={i} className="grid gap-1 sm:grid-cols-[8rem_1fr]">
@@ -150,6 +155,7 @@ function Transcript({ journal, episode }: { journal: Journal; episode: Episode }
 }
 
 function Media({ journal, episode }: { journal: Journal; episode: Episode }) {
+  const { t } = useI18n();
   if (episode.format === "reading") {
     return (
       <div className="rounded-sm border bg-card px-6 py-10 md:px-14 md:py-14 shadow-[var(--shadow-book)]">
@@ -169,8 +175,8 @@ function Media({ journal, episode }: { journal: Journal; episode: Episode }) {
         <div role="note" className={`grid place-items-center rounded-lg border border-dashed text-center p-8 ${isAudio ? "bg-secondary min-h-40" : "bg-sage/30 aspect-video"}`}>
           <div>
             {isAudio ? <Headphones className="mx-auto size-8" aria-hidden /> : <Clapperboard className="mx-auto size-8" aria-hidden />}
-            <p className="mt-3 font-semibold">{isAudio ? "Áudio de demonstração" : "Vídeo de demonstração"} — mídia ainda não disponível</p>
-            <p className="mt-1 text-sm text-muted-foreground">Acompanhe a cena pela transcrição abaixo, lendo em voz alta se quiser.</p>
+            <p className="mt-3 font-semibold">{isAudio ? t("episode.demoAudio") : t("episode.demoVideo")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("episode.demoHint")}</p>
           </div>
         </div>
       )}
