@@ -6,6 +6,7 @@ import { setReading, useReading } from "@/lib/reading";
 import { getJournal, getEpisode, type Episode, type Journal } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { useStore, markOpened, toggleVocab, vocabKey, toggleBookmark, epKey, addPassage } from "@/lib/store";
+import { useLocalizedJournal } from "@/lib/content-l10n";
 import { WritingStudio } from "@/components/WritingStudio";
 
 export const Route = createFileRoute("/episodio/$journalId/$episodeId")({
@@ -32,11 +33,13 @@ const FormatIcon = { reading: BookOpen, listening: Headphones, watching: Clapper
 
 function EpisodePage() {
   const { journalId, episodeId } = Route.useParams();
-  const j = getJournal(journalId)!;
+  const lx = useLocalizedJournal(journalId)!;
+  const j = lx.journal;
   const e = getEpisode(j, episodeId)!;
+  const xl = lx.lang;
   const s = useStore();
-  const { t, langName, explanation } = useI18n();
-  const ptOnly = explanation !== "pt-BR";
+  const { t, langName } = useI18n();
+  const ptOnly = lx.fallback;
   useEffect(() => { markOpened(j.id, e.id); }, [j.id, e.id]);
   const idx = j.episodes.indexOf(e);
   const prev = j.episodes[idx - 1], next = j.episodes[idx + 1];
@@ -81,7 +84,7 @@ function EpisodePage() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p lang={j.languageCode} className="font-display text-xl">{v.term}</p>
-                    <p lang="pt-BR" className="text-muted-foreground">{v.translation}</p>
+                    <p lang={xl} className="text-muted-foreground">{v.translation}</p>
                   </div>
                   <button onClick={() => toggleVocab({ journalId: j.id, episodeId: e.id, languageCode: j.languageCode, category: "word", ...v })} aria-pressed={saved}
                     aria-label={saved ? t("episode.unsaveWord", { term: v.term }) : t("episode.saveWord", { term: v.term })}
@@ -98,7 +101,7 @@ function EpisodePage() {
         <dl className="mt-4 divide-y border-y">
           {e.expressions.map((x) => (
             <div key={x.term} className="grid grid-cols-[1fr_auto] gap-1 py-3 sm:grid-cols-[1fr_1fr_auto]">
-              <dt lang={j.languageCode} className="font-serif text-lg italic">{x.term}</dt><dd lang="pt-BR" className="text-muted-foreground max-sm:col-start-1">{x.meaning}</dd>
+              <dt lang={j.languageCode} className="font-serif text-lg italic">{x.term}</dt><dd lang={xl} className="text-muted-foreground max-sm:col-start-1">{x.meaning}</dd>
               <dd className="row-start-1 col-start-2 sm:col-start-3">
                 <button onClick={() => toggleVocab({ journalId: j.id, episodeId: e.id, languageCode: j.languageCode, term: x.term, translation: x.meaning, example: "", category: "expression" })}
                   aria-pressed={isSaved(x.term)} aria-label={isSaved(x.term) ? t("episode.unsaveWord", { term: x.term }) : t("episode.saveWord", { term: x.term })}
@@ -112,7 +115,7 @@ function EpisodePage() {
         <h3 className="mt-10 text-2xl">{t("episode.grammar")}</h3>
         <div className="mt-4 space-y-6">
           {e.grammar.map((g) => (
-            <div key={g.title} lang="pt-BR">
+            <div key={g.title} lang={xl}>
               <p className="font-semibold">{g.title}</p>
               <p className="mt-1 font-serif text-lg leading-relaxed">{g.explanation}</p>
               <ul className="mt-2 space-y-1">{g.examples.map((x) => <li key={x} lang={j.languageCode} className="font-serif italic text-sage-deep">— {x}</li>)}</ul>
@@ -124,7 +127,7 @@ function EpisodePage() {
       <Section title={t("episode.cultureTitle")} kicker={t("episode.cultureKicker")}>
         <div className="space-y-4">
           {e.culture.map((c) => (
-            <aside key={c.title} lang="pt-BR" className="rounded-lg bg-pink/40 p-6">
+            <aside key={c.title} lang={xl} className="rounded-lg bg-pink/40 p-6">
               <p className="font-display text-xl">{c.title}</p>
               <p className="mt-2 font-serif text-lg leading-relaxed">{c.text}</p>
             </aside>
@@ -133,7 +136,7 @@ function EpisodePage() {
       </Section>
 
       <Section id="escrever" title={t("episode.writeTitle")} kicker={t("episode.writeKicker")}>
-        <WritingStudio journal={j} episode={e} entry={entry} />
+        <WritingStudio journal={j} episode={e} entry={entry} explLang={xl} />
         {entry && <p className="mt-3 text-sm text-muted-foreground">{t("episode.existing", { status: entry.status === "complete" ? t("status.complete") : t("status.draft") })} <Link to="/entradas" className="underline">{t("nav.entries")}</Link>.</p>}
       </Section>
 

@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { journals, getJournal, getEpisode } from "@/lib/content";
+import { getEpisode } from "@/lib/content";
+import { useLocalizedJournals } from "@/lib/content-l10n";
 import { useI18n } from "@/lib/i18n";
 import { useStore, dueVocab } from "@/lib/store";
 
@@ -7,6 +8,8 @@ import { useStore, dueVocab } from "@/lib/store";
 export function ContinueLearning() {
   const s = useStore();
   const { t, date } = useI18n();
+  const journals = useLocalizedJournals().map((x) => x.journal);
+  const getJournal = (id: string) => journals.find((j) => j.id === id);
   const last = s.lastEpisode;
   const lj = last && getJournal(last.journalId);
   const le = lj && getEpisode(lj, last.episodeId);

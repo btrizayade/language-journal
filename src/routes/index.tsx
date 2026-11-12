@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { journals } from "@/lib/content";
+import { useLocalizedJournals } from "@/lib/content-l10n";
 import { useStore, completedEpisodes } from "@/lib/store";
 import { ContinueLearning } from "@/components/ContinueLearning";
 import { BookCard } from "@/components/BookCard";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/")({
 
 function Library() {
   const s = useStore();
+  const loc = Object.fromEntries(useLocalizedJournals().map((x) => [x.journal.id, x.journal]));
   const { t } = useI18n();
   const started = journals.filter((j) => s.lastVisit[j.id]).sort((a, b) => (s.lastVisit[b.id] ?? "").localeCompare(s.lastVisit[a.id] ?? ""));
   const discover = journals.filter((j) => !s.lastVisit[j.id]);
@@ -61,7 +63,7 @@ function Library() {
       <section aria-labelledby="diarios" className="mb-20">
         <h2 id="diarios" className="text-3xl mb-8">{started.length ? t("library.mine") : t("library.shelf")}</h2>
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-3">
-          {(started.length ? started : journals).map((j) => <BookCard key={j.id} journal={j} done={completedEpisodes(s, j.id).size} />)}
+          {(started.length ? started : journals).map((j) => <BookCard key={j.id} journal={loc[j.id] ?? j} done={completedEpisodes(s, j.id).size} />)}
         </div>
       </section>
 
@@ -69,7 +71,7 @@ function Library() {
         <section aria-labelledby="descobrir" className="mb-10">
           <h2 id="descobrir" className="text-3xl mb-8">{t("library.discover")}</h2>
           <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-3">
-            {discover.map((j) => <BookCard key={j.id} journal={j} done={0} />)}
+            {discover.map((j) => <BookCard key={j.id} journal={loc[j.id] ?? j} done={0} />)}
           </div>
         </section>
       )}

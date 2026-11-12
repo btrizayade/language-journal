@@ -4,7 +4,7 @@ import { countWords, type Episode, type Journal } from "@/lib/content";
 import { autosave, epKey, persistEntry, setGoal, useStore, type Entry } from "@/lib/store";
 import { useI18n } from "@/lib/i18n";
 
-export function WritingStudio({ journal, episode, entry }: { journal: Journal; episode: Episode; entry?: Entry | undefined }) {
+export function WritingStudio({ journal, episode, entry, explLang = "pt-BR" }: { journal: Journal; episode: Episode; entry?: Entry | undefined; explLang?: string }) {
   const { t, langName } = useI18n();
   const s = useStore();
   const pending = entry ? s.pending[entry.id] : undefined;
@@ -49,7 +49,7 @@ export function WritingStudio({ journal, episode, entry }: { journal: Journal; e
         <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{t("studio.kicker")} · {t(`activity.${p.type}`)}</p>
         <h3 className="mt-2 text-3xl">{p.title}</h3>
         <blockquote lang={journal.languageCode} className="mt-4 border-l-2 border-lavender pl-4 font-serif text-xl italic">{p.prompt}</blockquote>
-        <p lang="pt-BR" className="mt-4 text-muted-foreground">{p.instructions}</p>
+        <p lang={explLang} className="mt-4 text-muted-foreground">{p.instructions}</p>
         {editGoal ? (
           <form className="mt-3 flex flex-wrap items-end gap-2 text-sm" onSubmit={(ev) => { ev.preventDefault(); saveGoal(ev.currentTarget); }}>
             <label className="flex flex-col gap-1">{t("studio.goalMin")}<input name="min" type="number" min={1} defaultValue={min} className="w-24 rounded-md border bg-background px-2 py-1" /></label>

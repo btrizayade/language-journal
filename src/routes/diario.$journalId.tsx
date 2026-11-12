@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { getJournal } from "@/lib/content";
+import { useLocalizedJournal } from "@/lib/content-l10n";
 import { useI18n } from "@/lib/i18n";
 import { useStore, completedEpisodes } from "@/lib/store";
 import { ProgressBar } from "@/components/BookCard";
@@ -26,9 +27,10 @@ export const Route = createFileRoute("/diario/$journalId")({
 
 function JournalPage() {
   const { journalId } = Route.useParams();
-  const j = getJournal(journalId)!;
+  const lx = useLocalizedJournal(journalId)!;
+  const j = lx.journal;
   const s = useStore();
-  const { t, langName, explanation } = useI18n();
+  const { t, langName } = useI18n();
   const done = completedEpisodes(s, j.id);
   const next = j.episodes.find((e) => !done.has(e.id)) ?? j.episodes[0]!;
 
@@ -39,8 +41,8 @@ function JournalPage() {
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{langName(j.languageCode)} · {t("journal.level", { level: j.level })}</p>
           <h1 className="mt-3 text-5xl md:text-6xl">{j.title}</h1>
-          <p lang="pt-BR" className="mt-6 font-serif text-xl leading-relaxed">{j.synopsis}</p>
-          {explanation !== "pt-BR" && <p className="mt-2 text-sm text-muted-foreground">{t("episode.explFallback")}</p>}
+          <p lang={lx.lang} className="mt-6 font-serif text-xl leading-relaxed">{j.synopsis}</p>
+          {lx.fallback && <p className="mt-2 text-sm text-muted-foreground">{t("episode.explFallback")}</p>}
           <div className="mt-8 max-w-sm">
             <ProgressBar value={done.size / j.episodes.length} label={t("journal.progress")} />
             <p className="mt-2 text-sm text-muted-foreground">{t("journal.completed", { done: done.size, total: j.episodes.length })}</p>
