@@ -7,7 +7,7 @@ const rows = {
   "common.edit": ["Editar", "Edit", "Modifier", "Bearbeiten", "Editar"],
   "common.save": ["Salvar", "Save", "Enregistrer", "Speichern", "Guardar"],
   "cont.title": ["Continuar aprendendo", "Continue learning", "Continuer à apprendre", "Weiterlernen", "Seguir aprendiendo"],
-  "cont.hint": ["Retome de onde parou, quando quiser. Sem metas diárias.", "Pick up where you left off, whenever you like. No daily targets.", "Reprenez là où vous en étiez, quand vous voulez. Pas d'objectif quotidien.", "Mach weiter, wo du aufgehört hast — wann du willst. Keine Tagesziele.", "Retoma donde lo dejaste, cuando quieras. Sin metas diarias."],
+  "cont.hint": ["Retome de onde parou, quando quiser.", "Pick up where you left off, whenever you like. No daily targets.", "Reprenez là où vous en étiez, quand vous voulez. Pas d'objectif quotidien.", "Mach weiter, wo du aufgehört hast — wann du willst. Keine Tagesziele.", "Retoma donde lo dejaste, cuando quieras. Sin metas diarias."],
   "cont.lastRead": ["Último episódio", "Last episode", "Dernier épisode", "Letzte Folge", "Último episodio"],
   "cont.drafts": ["Rascunhos e escritas pendentes", "Drafts and pending writing", "Brouillons et écrits en attente", "Entwürfe und offene Schreibaufgaben", "Borradores y escritos pendientes"],
   "cont.noDrafts": ["Nenhum rascunho aberto.", "No open drafts.", "Aucun brouillon en cours.", "Keine offenen Entwürfe.", "No hay borradores abiertos."],
