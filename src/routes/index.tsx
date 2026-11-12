@@ -5,7 +5,7 @@ import { useStore, completedEpisodes } from "@/lib/store";
 import { ContinueLearning } from "@/components/ContinueLearning";
 import { BookCard } from "@/components/BookCard";
 import { useI18n } from "@/lib/i18n";
-import { WashiTape, StampBadge } from "@/components/ui/scrapbook";
+import { StampBadge } from "@/components/ui/scrapbook";
 import libraryHero from "@/assets/library-panorama.jpg";
 import { Decoration, SparkleField } from "@/components/decorations/Decoration";
 import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
@@ -72,7 +72,6 @@ function Library() {
               return (
                 <Link key={j.id} to="/episodio/$journalId/$episodeId" params={{ journalId: j.id, episodeId: next.id }}
                   className="paper-card lift relative flex gap-5 p-5 focus-visible:outline-2 focus-visible:outline-ring">
-                  <WashiTape tint={j.languageCode === "fr" ? "pink" : "powder"} className="absolute -top-3 left-8" />
                   <img src={j.cover} alt="" width={768} height={1024} className="w-20 aspect-[3/4] rounded-sm object-cover shadow-[var(--shadow-book)] -rotate-2" />
                   <div>
                     <StampBadge tint="butter">{j.title}</StampBadge>

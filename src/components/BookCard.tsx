@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import type { Journal } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
-import { RibbonBookmark, StampBadge, WashiTape } from "@/components/ui/scrapbook";
+import { RibbonBookmark, StampBadge } from "@/components/ui/scrapbook";
 
 export function ProgressBar({ value, label }: { value: number; label: string }) {
   return (
@@ -20,7 +20,6 @@ export function BookCard({ journal, done }: { journal: Journal; done: number }) 
   return (
     <Link to="/diario/$journalId" params={{ journalId: journal.id }} className="group block paper-card lift p-4 pb-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
       <div className="relative">
-      <WashiTape tint={journal.languageCode === "fr" ? "pink" : "powder"} rotate={-6} className="absolute -top-5 left-1/2 z-10 -translate-x-1/2" />
       {done > 0 && <RibbonBookmark tint="butter" className="absolute -top-1 right-5 z-10" />}
       <div className="overflow-hidden rounded-r-md rounded-l-sm border border-cocoa/30 shadow-[var(--shadow-book)] transition-transform duration-300 group-hover:-rotate-1">
         <img src={journal.cover} alt="" width={768} height={1024} loading="lazy" className="aspect-[3/4] w-full object-cover" />
