@@ -30,7 +30,7 @@ describe("guest data migration", () => {
   it("combines bookmarks and opened episodes from both", () => {
     const m = mergeStates(st({ bookmarks: { "j/1": "x" }, opened: { j: ["1"] } }), st({ bookmarks: { "j/2": "y" }, opened: { j: ["2"] } }));
     expect(Object.keys(m.bookmarks).sort()).toEqual(["j/1", "j/2"]);
-    expect(m.opened.j!.sort()).toEqual(["1", "2"]);
+    expect(m.opened["j"]!.sort()).toEqual(["1", "2"]);
   });
   it("a completed episode stays completed after merging", () => {
     const m = mergeStates(st({ entries: [entry({ status: "draft" })] }), st({ entries: [entry({ status: "complete" })] }));
