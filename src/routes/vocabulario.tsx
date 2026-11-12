@@ -5,6 +5,7 @@ import { journals, languageCodes, getJournal, getEpisode } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { useStore, updateVocab, deleteVocab, dueVocab, type SavedVocab, type VocabStatus, type VocabCategory } from "@/lib/store";
 import { Decoration } from "@/components/decorations/Decoration";
+import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
 
 export const Route = createFileRoute("/vocabulario")({
   head: () => ({
@@ -54,7 +55,8 @@ function VocabPage() {
         </Link>
       </div>
 
-      <div className="mt-10 flex flex-wrap gap-3" role="group" aria-label={t("entries.filters")}>
+      <IllustratedBoundary variant="transition" />
+      <div className="mt-4 flex flex-wrap gap-3" role="group" aria-label={t("entries.filters")}>
         <label className="sr-only" htmlFor="v-q">{t("vocab.search")}</label>
         <input id="v-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("vocab.search")} className={`${sel} min-w-56 flex-1`} />
         <label className="sr-only" htmlFor="v-l">{t("entries.language")}</label>
@@ -91,6 +93,7 @@ function VocabPage() {
       ) : (
         <ul className="mt-10 grid gap-4 md:grid-cols-2">{list.map((v) => <VocabCard key={v.key} v={v} />)}</ul>
       )}
+      <IllustratedBoundary variant="notebook" />
     </div>
   );
 }

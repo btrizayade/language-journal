@@ -6,6 +6,7 @@ import { useStore, completedEpisodes, episodeStatus } from "@/lib/store";
 import { ProgressBar } from "@/components/BookCard";
 import { Check } from "lucide-react";
 import { Decoration, SparkleField } from "@/components/decorations/Decoration";
+import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
 
 export const Route = createFileRoute("/diario/$journalId")({
   loader: ({ params }) => {
@@ -63,7 +64,8 @@ function JournalPage() {
         </div>
       </div>
 
-      <section className="mt-20" aria-labelledby="personagens">
+      <IllustratedBoundary variant="transition" />
+      <section className="mt-8" aria-labelledby="personagens">
         <h2 id="personagens" className="text-3xl">{t("journal.characters")}</h2>
         <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {j.characters.map((c) => (
@@ -76,7 +78,8 @@ function JournalPage() {
         </ul>
       </section>
 
-      <section className="mt-20" aria-labelledby="episodios">
+      <IllustratedBoundary variant="notebook" />
+      <section className="mt-8" aria-labelledby="episodios">
         <h2 id="episodios" className="text-3xl">{t("journal.episodes")}</h2>
         <ol className="mt-6 divide-y border-y">
           {j.episodes.map((e) => (
@@ -101,6 +104,7 @@ function JournalPage() {
           ))}
         </ol>
       </section>
+      <IllustratedBoundary variant="quiet" />
     </div>
   );
 }

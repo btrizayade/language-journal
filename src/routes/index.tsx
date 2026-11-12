@@ -6,8 +6,9 @@ import { ContinueLearning } from "@/components/ContinueLearning";
 import { BookCard } from "@/components/BookCard";
 import { useI18n } from "@/lib/i18n";
 import { WashiTape, StampBadge } from "@/components/ui/scrapbook";
-import libraryHero from "@/assets/library-hero.jpg";
+import libraryHero from "@/assets/library-panorama.jpg";
 import { Decoration, SparkleField } from "@/components/decorations/Decoration";
+import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,27 +32,33 @@ function Library() {
   const discover = journals.filter((j) => !s.lastVisit[j.id]);
 
   return (
-    <div className="mx-auto max-w-6xl px-6">
-      <section className="relative overflow-clip py-12 md:py-20">
+    <div>
+      <section className="library-scene relative isolate overflow-clip">
         <img src={libraryHero} alt="" aria-hidden="true" width={1920} height={960} fetchPriority="high"
-          className="pointer-events-none absolute inset-y-0 right-[-18%] hidden h-full w-auto max-w-none object-contain opacity-95 md:block [mask-image:linear-gradient(to_right,transparent,black_30%)]" />
-        <img src={libraryHero} alt="" aria-hidden="true" width={1920} height={960}
-          className="mb-8 w-full rounded-lg md:hidden" />
+          className="library-scene-art pointer-events-none absolute inset-0 h-full w-full" />
         <SparkleField className="hidden md:block" sparkles={[
           { top: "12%", left: "58%", size: 22, delay: 0 }, { top: "30%", left: "92%", size: 16, delay: 1.1 },
           { top: "70%", left: "64%", size: 18, delay: 2 }, { top: "84%", left: "88%", size: 14, delay: 0.6 },
           { top: "8%", left: "40%", size: 12, delay: 1.7 },
         ]} />
-        <Decoration asset="bookFloating" size={86} pos={{ top: "6%", right: "2%" }} rotate={-8} className="hidden lg:block" />
-        <Decoration asset="potionGolden" size={58} pos={{ bottom: "6%", left: "50%" }} motion="potion" delay={3} rotate={6} className="hidden lg:block" />
-        <Decoration asset="moonCrescent" size={48} pos={{ top: "4%", left: "47%" }} motion="float" duration={12} delay={5} className="hidden md:block" />
-        <div className="relative max-w-lg animate-fade-up">
+        <Decoration asset="bookSage" size={76} pos={{ top: "10%", right: "6%" }} rotate={-8} className="hidden lg:block" />
+        <Decoration asset="potionLavender" size={64} pos={{ bottom: "12%", left: "36%" }} motion="potion" delay={3} rotate={6} className="hidden lg:block" />
+        <Decoration asset="moonCrescent" size={44} pos={{ top: "5%", left: "47%" }} duration={12} delay={5} className="hidden md:block" />
+        <Decoration asset="bookRose" size={54} pos={{ top: "15%", left: "36%" }} rotate={15} delay={2} className="hidden lg:block" />
+        <Decoration asset="starRose" size={24} pos={{ top: "8%", left: "24%" }} motion="twinkle" delay={3} className="hidden md:block" />
+        <Decoration asset="starTeal" size={30} pos={{ bottom: "8%", left: "18%" }} motion="twinkle" delay={1} className="hidden md:block" />
+        <Decoration asset="potionGreen" size={54} pos={{ top: "52%", right: "3%" }} motion="potion" duration={13} delay={6} className="hidden lg:block" />
+        <Decoration asset="dustCluster" size={56} pos={{ top: "45%", right: "18%" }} motion="twinkle" duration={7} delay={2} className="hidden md:block" />
+        <Decoration asset="starEight" size={22} pos={{ bottom: "14%", right: "34%" }} motion="none" className="hidden md:block" />
+        <div className="library-scene-copy relative">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("library.kicker")}</p>
-          <h1 className="mt-4 text-5xl md:text-6xl leading-[1.05]">{t("library.title1")} <em className="text-sage-deep">{t("library.title2")}</em></h1>
-          <p className="mt-6 font-serif text-xl leading-relaxed text-muted-foreground">{t("library.intro")}</p>
+          <h1 className="mt-3 leading-[1.1]">Language Journal</h1>
+          <p className="mt-4 font-display text-xl leading-snug">{t("library.title1")} <em className="text-sage-deep">{t("library.title2")}</em></p>
+          <p className="mt-5 font-serif text-lg leading-relaxed text-muted-foreground">{t("library.intro")}</p>
         </div>
       </section>
-
+      <div className="mx-auto max-w-6xl px-6">
+      <IllustratedBoundary variant="transition" />
       <ContinueLearning />
 
       {started.length > 0 && (
@@ -60,7 +67,8 @@ function Library() {
           <div className="grid gap-6 md:grid-cols-2">
             {started.map((j) => {
               const done = completedEpisodes(s, j.id);
-              const next = j.episodes.find((e) => !done.has(e.id)) ?? j.episodes[j.episodes.length - 1]!;
+              const next = j.episodes.find((e) => !done.has(e.id)) ?? j.episodes[j.episodes.length - 1];
+              if (!next) return null;
               return (
                 <Link key={j.id} to="/episodio/$journalId/$episodeId" params={{ journalId: j.id, episodeId: next.id }}
                   className="paper-card lift relative flex gap-5 p-5 focus-visible:outline-2 focus-visible:outline-ring">
@@ -78,7 +86,10 @@ function Library() {
         </section>
       )}
 
-      <section aria-labelledby="diarios" className="mb-20">
+      <section aria-labelledby="diarios" className="relative mb-20">
+        <Decoration asset="starBotanical" size={32} pos={{ top: "-6px", right: "8%" }} motion="none" />
+        <Decoration asset="potionPink" size={80} pos={{ bottom: "16%", right: "7%" }} motion="potion" duration={12} className="hidden lg:block" />
+        <Decoration asset="mirrorOval" size={98} pos={{ top: "26%", right: "13%" }} motion="mirror" duration={15} className="hidden lg:block" />
         <h2 id="diarios" className="text-3xl mb-8">{started.length ? t("library.mine") : t("library.shelf")}</h2>
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-3">
           {(started.length ? started : journals).map((j) => <BookCard key={j.id} journal={loc[j.id] ?? j} done={completedEpisodes(s, j.id).size} />)}
@@ -93,6 +104,8 @@ function Library() {
           </div>
         </section>
       )}
+      <IllustratedBoundary variant="closing" />
+      </div>
     </div>
   );
 }

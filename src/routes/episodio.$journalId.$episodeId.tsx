@@ -9,6 +9,7 @@ import { useStore, markOpened, toggleVocab, vocabKey, toggleBookmark, epKey, add
 import { useLocalizedJournal } from "@/lib/content-l10n";
 import { AudioPlayer, VideoPlayer } from "@/components/MediaPlayer";
 import { WritingStudio } from "@/components/WritingStudio";
+import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
 
 export const Route = createFileRoute("/episodio/$journalId/$episodeId")({
   loader: ({ params }) => {
@@ -76,6 +77,7 @@ function EpisodePage() {
       <section aria-label={t("episode.content")} className="mt-12"><PassageSaver journal={j} episode={e}><Media journal={j} episode={e} /></PassageSaver></section>
 
       <Section title={t("episode.langTitle")} kicker={t("episode.langKicker")}>
+        <IllustratedBoundary variant="quiet" />
         {ptOnly && <p role="note" className="mb-6 rounded-md bg-muted px-4 py-3 text-sm text-muted-foreground">{t("episode.explFallback")}</p>}
         <ul className="grid gap-3 sm:grid-cols-2">
           {e.vocabulary.map((v) => {
@@ -137,6 +139,7 @@ function EpisodePage() {
       </Section>
 
       <Section id="escrever" title={t("episode.writeTitle")} kicker={t("episode.writeKicker")}>
+        <IllustratedBoundary variant="quiet" />
         <WritingStudio journal={j} episode={e} entry={entry} explLang={xl} />
         {entry && <p className="mt-3 text-sm text-muted-foreground">{t("episode.existing", { status: entry.status === "complete" ? t("status.complete") : t("status.draft") })} <Link to="/entradas" className="underline">{t("nav.entries")}</Link>.</p>}
       </Section>

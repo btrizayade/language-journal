@@ -49,7 +49,7 @@ export function Decoration({ asset, size, pos, motion = "float", duration, delay
   return (
     <div ref={ref} className={cn("magic-layer absolute", !visible && "magic-paused", className)} style={style} aria-hidden={alt ? undefined : true}>
       {motion === "potion" || motion === "openBook" ? (
-        <span className="absolute inset-[15%] rounded-full bg-butter/50 blur-xl" style={{ animation: `magic-glow ${dur * 0.6}s ease-in-out ${-delay}s infinite` }} />
+        <span className="absolute inset-[25%] rounded-full bg-butter/20" style={{ animation: `magic-glow ${dur * 0.6}s ease-in-out ${-delay}s infinite` }} />
       ) : null}
       <img src={magicalAssets[asset]} alt={alt ?? ""} width={size} height={size} loading="lazy" decoding="async" draggable={false} className="relative block h-auto w-full" />
       {motion === "potion" && [0, 1, 2].map((i) => (
@@ -65,14 +65,14 @@ export function Decoration({ asset, size, pos, motion = "float", duration, delay
   );
 }
 
-export interface SparkleSpec { top: string; left: string; size: number; delay: number; rotate?: number }
+export interface SparkleSpec { top: string; left: string; size: number; delay: number; rotate?: number; asset?: MagicalAsset }
 
 /** Deterministic sparkle placement: positions come from props, never from Math.random during render. */
 export function SparkleField({ sparkles, className }: { sparkles: SparkleSpec[]; className?: string }) {
   return (
     <div className={cn("magic-layer absolute inset-0", className)} aria-hidden="true">
       {sparkles.map((s, i) => (
-        <Decoration key={i} asset="sparkleSmall" size={s.size} pos={{ top: s.top, left: s.left }} motion="twinkle"
+        <Decoration key={i} asset={s.asset ?? (["sparkleSmall", "starEight", "starRose", "starTeal", "starBurst"] as const)[i % 5] ?? "sparkleSmall"} size={s.size} pos={{ top: s.top, left: s.left }} motion="twinkle"
           duration={2.4 + (i % 3) * 0.7} delay={s.delay} rotate={s.rotate ?? (i * 23) % 40} />
       ))}
     </div>

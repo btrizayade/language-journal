@@ -5,6 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { useStore, type Entry } from "@/lib/store";
 import { WritingStudio } from "@/components/WritingStudio";
 import { Decoration } from "@/components/decorations/Decoration";
+import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
 
 export const Route = createFileRoute("/entradas")({
   head: () => ({
@@ -51,7 +52,8 @@ function EntriesPage() {
       <h1 className="relative inline-block text-5xl">{t("nav.entries")}<Decoration asset="quillMagic" size={44} pos={{ top: "-10%", right: "-64px" }} motion="none" rotate={10} className="hidden sm:block" /></h1>
       <p className="mt-4 font-serif text-xl text-muted-foreground">{t("entries.intro")}</p>
 
-      <div className="mt-10 flex flex-wrap gap-3" role="group" aria-label={t("entries.filters")}>
+      <IllustratedBoundary variant="notebook" />
+      <div className="mt-4 flex flex-wrap gap-3" role="group" aria-label={t("entries.filters")}>
         <label className="sr-only" htmlFor="f-j">{t("entries.journal")}</label>
         <select id="f-j" className={sel} value={journal} onChange={(e) => setJournal(e.target.value)}>
           <option value="all">{t("entries.allJournals")}</option>
@@ -135,6 +137,7 @@ function EntriesPage() {
           })}
         </ul>
       )}
+      <IllustratedBoundary variant="quiet" />
     </div>
   );
 }

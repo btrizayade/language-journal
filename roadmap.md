@@ -1,5 +1,6 @@
-# Illustration direction
+# Full-page illustrated expansion
 
-- [x] Rework the library illustration using the approved vintage 2D reference.
-- [x] Rework both journal covers without changing their stories or settings.
-- [x] Inspect the images and verify their display on desktop and mobile.- [x] Magical illustrated decorations (8 assets) with reusable animated components.
+- [x] Expand the library scene across a full-width, substantial first screen.
+- [x] Extend the individual transparent asset collection: 6 books, 5 potions, 3 mirrors, 12 celestial ornaments, additional objects.
+- [x] Distribute intentional compositions through the library, journal, episode, notebook, entries, preferences and footer.
+- [x] Verify five requested viewport sizes, reduced motion, reading/writing usability and regression tests (27 passing); guest draft save/read-back checked, signed-in Cloud sync unchanged and not retested.
