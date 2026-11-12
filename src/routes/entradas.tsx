@@ -4,6 +4,7 @@ import { journals, languageCodes, getJournal, getEpisode, countWords } from "@/l
 import { useI18n } from "@/lib/i18n";
 import { useStore, type Entry } from "@/lib/store";
 import { WritingStudio } from "@/components/WritingStudio";
+import { Decoration } from "@/components/decorations/Decoration";
 
 export const Route = createFileRoute("/entradas")({
   head: () => ({
@@ -47,7 +48,7 @@ function EntriesPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-14">
-      <h1 className="text-5xl">{t("nav.entries")}</h1>
+      <h1 className="relative inline-block text-5xl">{t("nav.entries")}<Decoration asset="quillMagic" size={44} pos={{ top: "-10%", right: "-64px" }} motion="none" rotate={10} className="hidden sm:block" /></h1>
       <p className="mt-4 font-serif text-xl text-muted-foreground">{t("entries.intro")}</p>
 
       <div className="mt-10 flex flex-wrap gap-3" role="group" aria-label={t("entries.filters")}>

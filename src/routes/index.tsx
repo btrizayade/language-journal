@@ -7,6 +7,7 @@ import { BookCard } from "@/components/BookCard";
 import { useI18n } from "@/lib/i18n";
 import { WashiTape, StampBadge } from "@/components/ui/scrapbook";
 import libraryHero from "@/assets/library-hero.jpg";
+import { Decoration, SparkleField } from "@/components/decorations/Decoration";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,6 +37,14 @@ function Library() {
           className="pointer-events-none absolute inset-y-0 right-[-18%] hidden h-full w-auto max-w-none object-contain opacity-95 md:block [mask-image:linear-gradient(to_right,transparent,black_30%)]" />
         <img src={libraryHero} alt="" aria-hidden="true" width={1920} height={960}
           className="mb-8 w-full rounded-lg md:hidden" />
+        <SparkleField className="hidden md:block" sparkles={[
+          { top: "12%", left: "58%", size: 22, delay: 0 }, { top: "30%", left: "92%", size: 16, delay: 1.1 },
+          { top: "70%", left: "64%", size: 18, delay: 2 }, { top: "84%", left: "88%", size: 14, delay: 0.6 },
+          { top: "8%", left: "40%", size: 12, delay: 1.7 },
+        ]} />
+        <Decoration asset="bookFloating" size={86} pos={{ top: "6%", right: "2%" }} rotate={-8} className="hidden lg:block" />
+        <Decoration asset="potionGolden" size={58} pos={{ bottom: "6%", left: "50%" }} motion="potion" delay={3} rotate={6} className="hidden lg:block" />
+        <Decoration asset="moonCrescent" size={48} pos={{ top: "4%", left: "47%" }} motion="float" duration={12} delay={5} className="hidden md:block" />
         <div className="relative max-w-lg animate-fade-up">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("library.kicker")}</p>
           <h1 className="mt-4 text-5xl md:text-6xl leading-[1.05]">{t("library.title1")} <em className="text-sage-deep">{t("library.title2")}</em></h1>

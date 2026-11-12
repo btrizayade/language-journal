@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { journals, languageCodes, getJournal, getEpisode } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { useStore, updateVocab, deleteVocab, dueVocab, type SavedVocab, type VocabStatus, type VocabCategory } from "@/lib/store";
+import { Decoration } from "@/components/decorations/Decoration";
 
 export const Route = createFileRoute("/vocabulario")({
   head: () => ({
@@ -45,7 +46,7 @@ function VocabPage() {
     <div className="mx-auto max-w-5xl px-6 py-14">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-5xl">{t("vocab.title")}</h1>
+          <h1 className="relative inline-block text-5xl">{t("vocab.title")}<Decoration asset="mirrorMagic" size={44} pos={{ top: "-10%", right: "-64px" }} motion="mirror" rotate={10} className="hidden sm:block" /></h1>
           <p className="mt-4 font-serif text-xl text-muted-foreground">{t("vocab.intro")}</p>
         </div>
         <Link to="/revisao" className="rounded-full bg-primary px-5 py-2.5 text-primary-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">

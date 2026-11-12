@@ -5,6 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { useStore, completedEpisodes, episodeStatus } from "@/lib/store";
 import { ProgressBar } from "@/components/BookCard";
 import { Check } from "lucide-react";
+import { Decoration, SparkleField } from "@/components/decorations/Decoration";
 
 export const Route = createFileRoute("/diario/$journalId")({
   loader: ({ params }) => {
@@ -37,7 +38,11 @@ function JournalPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
       <div className="grid gap-12 md:grid-cols-[minmax(0,380px)_1fr]">
-        <img src={j.cover} alt={t("journal.cover", { title: j.title })} width={768} height={1024} className="w-full max-w-sm rounded-r-md rounded-l-sm border shadow-[var(--shadow-book)]" />
+        <div className="relative w-full max-w-sm">
+          <img src={j.cover} alt={t("journal.cover", { title: j.title })} width={768} height={1024} className="w-full rounded-r-md rounded-l-sm border shadow-[var(--shadow-book)]" />
+          <Decoration asset="keyAntique" size={64} pos={{ bottom: "-4%", right: "-10%" }} rotate={12} className="hidden sm:block" />
+          <SparkleField className="hidden sm:block" sparkles={[{ top: "-3%", left: "-5%", size: 20, delay: 0 }, { top: "18%", left: "96%", size: 14, delay: 1.4 }]} />
+        </div>
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{langName(j.languageCode)} · {t("journal.level", { level: j.level })}</p>
           <h1 className="mt-3 text-5xl md:text-6xl">{j.title}</h1>
