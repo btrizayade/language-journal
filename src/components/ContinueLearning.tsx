@@ -22,7 +22,7 @@ export function ContinueLearning() {
   const due = dueVocab(s).length;
   if (!le && !drafts.length && !recent.length) return null;
 
-  const card = "rounded-xl border bg-card p-5";
+  const card = "paper-card p-5";
   const kicker = "text-xs uppercase tracking-[0.18em] text-muted-foreground";
   return (
     <section aria-labelledby="continue-learning" className="mb-20">
@@ -30,7 +30,7 @@ export function ContinueLearning() {
       <p className="mt-1 text-muted-foreground">{t("cont.hint")}</p>
       <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {lj && le && (
-          <Link to="/episodio/$journalId/$episodeId" params={{ journalId: lj.id, episodeId: le.id }} className={`${card} flex gap-4 hover:border-lavender focus-visible:outline-2 focus-visible:outline-ring lg:col-span-1`}>
+          <Link to="/episodio/$journalId/$episodeId" params={{ journalId: lj.id, episodeId: le.id }} className={`${card} flex gap-4 lift focus-visible:outline-2 focus-visible:outline-ring lg:col-span-1`}>
             <img src={lj.cover} alt="" width={768} height={1024} className="w-16 aspect-[3/4] rounded-sm object-cover" />
             <div className="min-w-0">
               <p className={kicker}>{t("cont.lastRead")}</p>
@@ -57,7 +57,7 @@ export function ContinueLearning() {
           <p className={kicker}>{t("cont.recentWords")}</p>
           {recent.length ? (
             <>
-              <ul className="mt-2 flex flex-wrap gap-2">{recent.map((v) => <li key={v.key} lang={v.languageCode} className="rounded-full bg-secondary px-3 py-1 font-serif">{v.term}</li>)}</ul>
+              <ul className="mt-2 flex flex-wrap gap-2">{recent.map((v) => <li key={v.key} lang={v.languageCode} className="rounded-full border border-cocoa/30 bg-butter/60 px-3 py-1 font-serif text-plum shadow-sm">{v.term}</li>)}</ul>
               <Link to={due ? "/revisao" : "/vocabulario"} className="mt-3 inline-block text-sm underline">{due ? t("review.startDue", { n: due }) : t("cont.openNotebook")}</Link>
             </>
           ) : <p className="mt-2 text-sm text-muted-foreground">{t("progress.vocabEmpty")}</p>}

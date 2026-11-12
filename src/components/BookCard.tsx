@@ -1,12 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import type { Journal } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
+import { RibbonBookmark, StampBadge, WashiTape } from "@/components/ui/scrapbook";
 
 export function ProgressBar({ value, label }: { value: number; label: string }) {
   return (
     <div>
-      <div className="h-1 w-full rounded-full bg-border" role="progressbar" aria-valuenow={Math.round(value * 100)} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
-        <div className="h-1 rounded-full bg-lavender" style={{ width: `${value * 100}%` }} />
+      <div className="h-2 w-full rounded-full border border-cocoa/30 bg-paper" role="progressbar" aria-valuenow={Math.round(value * 100)} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
+        <div className="h-full rounded-full bg-sage" style={{ width: `${value * 100}%` }} />
       </div>
     </div>
   );
@@ -17,12 +18,16 @@ export function BookCard({ journal, done }: { journal: Journal; done: number }) 
   const main = journal.characters.find((c) => c.main);
   const total = journal.episodes.length;
   return (
-    <Link to="/diario/$journalId" params={{ journalId: journal.id }} className="group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring rounded-md">
-      <div className="overflow-hidden rounded-r-md rounded-l-sm border shadow-[var(--shadow-book)] transition-transform duration-300 group-hover:-translate-y-1">
+    <Link to="/diario/$journalId" params={{ journalId: journal.id }} className="group block paper-card lift p-4 pb-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
+      <div className="relative">
+      <WashiTape tint={journal.languageCode === "fr" ? "pink" : "powder"} rotate={-6} className="absolute -top-5 left-1/2 z-10 -translate-x-1/2" />
+      {done > 0 && <RibbonBookmark tint="butter" className="absolute -top-1 right-5 z-10" />}
+      <div className="overflow-hidden rounded-r-md rounded-l-sm border border-cocoa/30 shadow-[var(--shadow-book)] transition-transform duration-300 group-hover:-rotate-1">
         <img src={journal.cover} alt="" width={768} height={1024} loading="lazy" className="aspect-[3/4] w-full object-cover" />
       </div>
+      </div>
       <div className="mt-4 space-y-2">
-        <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{langName(journal.languageCode)} · {journal.level}</p>
+        <div className="flex flex-wrap gap-2"><StampBadge tint="lavender">{langName(journal.languageCode)}</StampBadge><StampBadge tint="sage">{journal.level}</StampBadge></div>
         <h3 className="text-2xl leading-tight">{journal.title}</h3>
         <p className="text-sm text-muted-foreground">{t("common.with", { name: main?.name ?? "" })}</p>
         <p className="font-serif text-[15px] leading-relaxed">{journal.tagline}</p>

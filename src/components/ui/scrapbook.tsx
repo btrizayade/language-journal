@@ -55,3 +55,24 @@ export function Sparkle({ className, delay = 0 }: { className?: string; delay?: 
     </svg>
   );
 }
+
+/** Hand-drawn sticker illustration: open book with a teacup and a sprig. Decorative. */
+export function LibraryDoodle({ className }: { className?: string }) {
+  const s = { stroke: "var(--cocoa)", strokeWidth: 2.2, strokeLinejoin: "round" as const, strokeLinecap: "round" as const };
+  return (
+    <svg aria-hidden="true" viewBox="0 0 220 160" className={cn("animate-gentle-float", className)}>
+      <ellipse cx="110" cy="146" rx="90" ry="8" fill="var(--cocoa)" opacity=".12" />
+      <path d="M20 122 C55 108 85 112 108 126 L108 44 C85 30 55 28 24 40 Z" fill="var(--secondary)" {...s} />
+      <path d="M196 122 C161 108 131 112 108 126 L108 44 C131 30 161 28 192 40 Z" fill="var(--pink)" {...s} />
+      <path d="M38 58 C58 52 76 54 94 60 M38 74 C58 68 76 70 94 76 M38 90 C58 84 76 86 94 92" fill="none" {...s} strokeWidth={1.6} opacity=".55" />
+      <path d="M122 60 C140 54 158 52 178 58 M122 76 C140 70 158 68 178 74" fill="none" {...s} strokeWidth={1.6} opacity=".55" />
+      <path d="M150 34 l0 30 l7 -6 l7 6 l0 -30" fill="var(--butter)" {...s} strokeWidth={1.8} />
+      <path d="M152 112 h40 l-4 26 a8 8 0 0 1 -8 7 h-16 a8 8 0 0 1 -8 -7 z" fill="var(--powder)" {...s} />
+      <path d="M192 118 c10 0 10 14 -2 14" fill="none" {...s} />
+      <path d="M164 104 c-4 -6 4 -8 0 -14 M176 104 c-4 -6 4 -8 0 -14" fill="none" {...s} strokeWidth={1.6} opacity=".6" />
+      <path d="M30 128 C34 108 44 96 58 90" fill="none" {...s} />
+      <ellipse cx="44" cy="104" rx="8" ry="4" transform="rotate(-40 44 104)" fill="var(--sage)" {...s} strokeWidth={1.6} />
+      <ellipse cx="54" cy="94" rx="7" ry="3.5" transform="rotate(-60 54 94)" fill="var(--sage)" {...s} strokeWidth={1.6} />
+    </svg>
+  );
+}

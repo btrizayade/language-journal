@@ -5,6 +5,7 @@ import { useStore, completedEpisodes } from "@/lib/store";
 import { ContinueLearning } from "@/components/ContinueLearning";
 import { BookCard } from "@/components/BookCard";
 import { useI18n } from "@/lib/i18n";
+import { LibraryDoodle, Sparkle, WashiTape, StampBadge } from "@/components/ui/scrapbook";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,10 +30,17 @@ function Library() {
 
   return (
     <div className="mx-auto max-w-6xl px-6">
-      <section className="py-16 md:py-24 max-w-3xl">
+      <section className="relative py-16 md:py-24 grid gap-10 md:grid-cols-[1fr_auto] items-center">
+        <div className="max-w-3xl animate-fade-up">
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("library.kicker")}</p>
         <h1 className="mt-4 text-5xl md:text-6xl leading-[1.05]">{t("library.title1")} <em className="text-sage-deep">{t("library.title2")}</em></h1>
         <p className="mt-6 font-serif text-xl leading-relaxed text-muted-foreground">{t("library.intro")}</p>
+        </div>
+        <div className="relative mx-auto w-56 md:w-72">
+          <Sparkle className="absolute -top-2 left-4" />
+          <Sparkle className="absolute top-6 right-0 h-3 w-3" delay={1.2} />
+          <LibraryDoodle className="w-full" />
+        </div>
       </section>
 
       <ContinueLearning />
@@ -46,12 +54,13 @@ function Library() {
               const next = j.episodes.find((e) => !done.has(e.id)) ?? j.episodes[j.episodes.length - 1]!;
               return (
                 <Link key={j.id} to="/episodio/$journalId/$episodeId" params={{ journalId: j.id, episodeId: next.id }}
-                  className="flex gap-5 rounded-lg border bg-card p-4 hover:border-lavender focus-visible:outline-2 focus-visible:outline-ring">
-                  <img src={j.cover} alt="" width={768} height={1024} className="w-20 aspect-[3/4] rounded-sm object-cover" />
+                  className="paper-card lift relative flex gap-5 p-5 focus-visible:outline-2 focus-visible:outline-ring">
+                  <WashiTape tint={j.languageCode === "fr" ? "pink" : "powder"} className="absolute -top-3 left-8" />
+                  <img src={j.cover} alt="" width={768} height={1024} className="w-20 aspect-[3/4] rounded-sm object-cover shadow-[var(--shadow-book)] -rotate-2" />
                   <div>
-                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{j.title}</p>
-                    <p className="mt-1 font-display text-xl">{t("common.epShort", { n: next.number })} · {next.title}</p>
-                    <p className="mt-1 font-serif text-muted-foreground">{next.intro}</p>
+                    <StampBadge tint="butter">{j.title}</StampBadge>
+                    <p lang={j.languageCode} className="mt-2 font-display text-xl">{t("common.epShort", { n: next.number })} · {next.title}</p>
+                    <p className="mt-1 font-serif text-muted-foreground line-clamp-2">{next.intro}</p>
                   </div>
                 </Link>
               );
