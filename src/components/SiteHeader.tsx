@@ -4,6 +4,8 @@ import { LOCALES, setPrefs, useI18n, type Locale } from "@/lib/i18n";
 
 const nav = [
   { to: "/", key: "nav.library" },
+  { to: "/vocabulario", key: "nav.vocab" },
+  { to: "/notas", key: "nav.notes" },
   { to: "/entradas", key: "nav.entries" },
   { to: "/progresso", key: "nav.progress" },
   { to: "/preferencias", key: "nav.settings" },
@@ -12,7 +14,7 @@ const nav = [
 export function SiteHeader() {
   const { t, locale } = useI18n();
   return (
-    <header className="border-b bg-background/90 backdrop-blur sticky top-0 z-40">
+    <header className="site-chrome border-b bg-background/90 backdrop-blur sticky top-0 z-40">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
         <Link to="/" className="font-display text-2xl italic">Language Journal</Link>
         <div className="flex flex-wrap items-center gap-2">

@@ -26,6 +26,7 @@ function EntriesPage() {
   const { t, langName, date: fmt } = useI18n();
   const [journal, setJournal] = useState("all");
   const [lang, setLang] = useState("all");
+  const [period, setPeriod] = useState<"all" | "7" | "30" | "365">("all");
   const [order, setOrder] = useState<"new" | "old" | "episode">("new");
   const [open, setOpen] = useState<string | null>(null);
   const [compare, setCompare] = useState<string[]>([]);
@@ -33,12 +34,13 @@ function EntriesPage() {
   const list = useMemo(() => {
     const l = s.entries.filter((e) => {
       const j = getJournal(e.journalId);
-      return j && (journal === "all" || j.id === journal) && (lang === "all" || j.languageCode === lang);
+      return j && (journal === "all" || j.id === journal) && (lang === "all" || j.languageCode === lang)
+        && (period === "all" || Date.now() - new Date(e.updatedAt).getTime() <= Number(period) * 864e5);
     });
     const num = (e: Entry) => getEpisode(getJournal(e.journalId)!, e.episodeId)?.number ?? 0;
     return l.sort((a, b) => order === "episode" ? a.journalId.localeCompare(b.journalId) || num(a) - num(b)
       : order === "new" ? b.createdAt.localeCompare(a.createdAt) : a.createdAt.localeCompare(b.createdAt));
-  }, [s.entries, journal, lang, order]);
+  }, [s.entries, journal, lang, order, period]);
 
   const toggleCompare = (id: string) => setCompare((c) => c.includes(id) ? c.filter((x) => x !== id) : [...c.slice(-1), id]);
   const compared = compare.map((id) => s.entries.find((e) => e.id === id)).filter(Boolean) as Entry[];
@@ -58,6 +60,13 @@ function EntriesPage() {
         <select id="f-l" className={sel} value={lang} onChange={(e) => setLang(e.target.value)}>
           <option value="all">{t("entries.allLanguages")}</option>
           {languageCodes.map((l) => <option key={l} value={l}>{langName(l)}</option>)}
+        </select>
+        <label className="sr-only" htmlFor="f-d">{t("entries.period")}</label>
+        <select id="f-d" className={sel} value={period} onChange={(e) => setPeriod(e.target.value as typeof period)}>
+          <option value="all">{t("entries.anyDate")}</option>
+          <option value="7">{t("entries.last7")}</option>
+          <option value="30">{t("entries.last30")}</option>
+          <option value="365">{t("entries.lastYear")}</option>
         </select>
         <label className="sr-only" htmlFor="f-o">{t("entries.sort")}</label>
         <select id="f-o" className={sel} value={order} onChange={(e) => setOrder(e.target.value as typeof order)}>

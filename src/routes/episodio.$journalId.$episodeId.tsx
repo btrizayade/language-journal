@@ -1,9 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { Bookmark, BookmarkCheck, BookOpen, Headphones, Clapperboard } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { Bookmark, BookmarkCheck, BookOpen, Headphones, Clapperboard, Quote } from "lucide-react";
+import { setReading, useReading } from "@/lib/reading";
 import { getJournal, getEpisode, type Episode, type Journal } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
-import { useStore, markOpened, toggleVocab } from "@/lib/store";
+import { useStore, markOpened, toggleVocab, vocabKey, toggleBookmark, epKey, addPassage } from "@/lib/store";
 import { WritingStudio } from "@/components/WritingStudio";
 
 export const Route = createFileRoute("/episodio/$journalId/$episodeId")({
@@ -40,10 +42,20 @@ function EpisodePage() {
   const prev = j.episodes[idx - 1], next = j.episodes[idx + 1];
   const entry = s.entries.find((x) => x.journalId === j.id && x.episodeId === e.id);
   const Icon = FormatIcon[e.format];
+  const bookmarked = !!s.bookmarks[epKey(j.id, e.id)];
+  const isSaved = (term: string) => s.vocab.some((x) => x.key === vocabKey(j.languageCode, term));
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-12">
-      <Link to="/diario/$journalId" params={{ journalId: j.id }} className="text-sm text-muted-foreground hover:text-foreground">← {j.title}</Link>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link to="/diario/$journalId" params={{ journalId: j.id }} className="text-sm text-muted-foreground hover:text-foreground">← {j.title}</Link>
+        <div className="flex gap-2 text-sm">
+          <button onClick={() => toggleBookmark(j.id, e.id)} aria-pressed={bookmarked} className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">
+            {bookmarked ? <BookmarkCheck className="size-4 text-sage-deep" aria-hidden /> : <Bookmark className="size-4" aria-hidden />}{bookmarked ? t("notes.bookmarked") : t("notes.bookmark")}
+          </button>
+          <button onClick={() => setReading({ focus: true })} className="rounded-full border px-3 py-1.5 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">{t("reading.focus")}</button>
+        </div>
+      </div>
 
       <header className="mt-8 text-center">
         <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">{t("episode.of", { n: e.number, total: j.episodes.length })}</p>
@@ -57,13 +69,13 @@ function EpisodePage() {
         <p className="mx-auto mt-8 max-w-xl border-y py-4 font-serif italic">{e.context}</p>
       </header>
 
-      <section aria-label={t("episode.content")} className="mt-12"><Media journal={j} episode={e} /></section>
+      <section aria-label={t("episode.content")} className="mt-12"><PassageSaver journal={j} episode={e}><Media journal={j} episode={e} /></PassageSaver></section>
 
       <Section title={t("episode.langTitle")} kicker={t("episode.langKicker")}>
         {ptOnly && <p role="note" className="mb-6 rounded-md bg-muted px-4 py-3 text-sm text-muted-foreground">{t("episode.explFallback")}</p>}
         <ul className="grid gap-3 sm:grid-cols-2">
           {e.vocabulary.map((v) => {
-            const saved = s.vocab.some((x) => x.key === `${j.id}:${v.term}`);
+            const saved = isSaved(v.term);
             return (
               <li key={v.term} className="rounded-lg border bg-card p-4">
                 <div className="flex items-start justify-between gap-2">
@@ -71,7 +83,7 @@ function EpisodePage() {
                     <p lang={j.languageCode} className="font-display text-xl">{v.term}</p>
                     <p lang="pt-BR" className="text-muted-foreground">{v.translation}</p>
                   </div>
-                  <button onClick={() => toggleVocab({ journalId: j.id, episodeId: e.id, ...v })} aria-pressed={saved}
+                  <button onClick={() => toggleVocab({ journalId: j.id, episodeId: e.id, languageCode: j.languageCode, category: "word", ...v })} aria-pressed={saved}
                     aria-label={saved ? t("episode.unsaveWord", { term: v.term }) : t("episode.saveWord", { term: v.term })}
                     className="rounded-full p-2 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">
                     {saved ? <BookmarkCheck className="size-5 text-sage-deep" /> : <Bookmark className="size-5" />}
@@ -85,8 +97,15 @@ function EpisodePage() {
         <h3 className="mt-10 text-2xl">{t("episode.expressions")}</h3>
         <dl className="mt-4 divide-y border-y">
           {e.expressions.map((x) => (
-            <div key={x.term} className="grid gap-1 py-3 sm:grid-cols-2">
-              <dt lang={j.languageCode} className="font-serif text-lg italic">{x.term}</dt><dd lang="pt-BR" className="text-muted-foreground">{x.meaning}</dd>
+            <div key={x.term} className="grid grid-cols-[1fr_auto] gap-1 py-3 sm:grid-cols-[1fr_1fr_auto]">
+              <dt lang={j.languageCode} className="font-serif text-lg italic">{x.term}</dt><dd lang="pt-BR" className="text-muted-foreground max-sm:col-start-1">{x.meaning}</dd>
+              <dd className="row-start-1 col-start-2 sm:col-start-3">
+                <button onClick={() => toggleVocab({ journalId: j.id, episodeId: e.id, languageCode: j.languageCode, term: x.term, translation: x.meaning, example: "", category: "expression" })}
+                  aria-pressed={isSaved(x.term)} aria-label={isSaved(x.term) ? t("episode.unsaveWord", { term: x.term }) : t("episode.saveWord", { term: x.term })}
+                  className="rounded-full p-2 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">
+                  {isSaved(x.term) ? <BookmarkCheck className="size-5 text-sage-deep" /> : <Bookmark className="size-5" />}
+                </button>
+              </dd>
             </div>
           ))}
         </dl>
@@ -113,7 +132,7 @@ function EpisodePage() {
         </div>
       </Section>
 
-      <Section title={t("episode.writeTitle")} kicker={t("episode.writeKicker")}>
+      <Section id="escrever" title={t("episode.writeTitle")} kicker={t("episode.writeKicker")}>
         <WritingStudio journal={j} episode={e} entry={entry} />
         {entry && <p className="mt-3 text-sm text-muted-foreground">{t("episode.existing", { status: entry.status === "complete" ? t("status.complete") : t("status.draft") })} <Link to="/entradas" className="underline">{t("nav.entries")}</Link>.</p>}
       </Section>
@@ -127,9 +146,9 @@ function EpisodePage() {
   );
 }
 
-function Section({ title, kicker, children }: { title: string; kicker: string; children: React.ReactNode }) {
+function Section({ id, title, kicker, children }: { id?: string; title: string; kicker: string; children: React.ReactNode }) {
   return (
-    <section className="mt-20">
+    <section id={id} className="mt-20 scroll-mt-24">
       <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{kicker}</p>
       <h2 className="mt-2 mb-6 text-4xl">{title}</h2>
       {children}
@@ -146,7 +165,7 @@ function Transcript({ journal, episode }: { journal: Journal; episode: Episode }
         {episode.transcript?.map((t, i) => (
           <div key={i} className="grid gap-1 sm:grid-cols-[8rem_1fr]">
             <dt className="text-sm font-semibold text-muted-foreground">{t.speaker}</dt>
-            <dd className="font-serif text-xl leading-relaxed">{t.line}</dd>
+            <dd className="reading-text font-serif">{t.line}</dd>
           </div>
         ))}
       </dl>
@@ -156,11 +175,14 @@ function Transcript({ journal, episode }: { journal: Journal; episode: Episode }
 
 function Media({ journal, episode }: { journal: Journal; episode: Episode }) {
   const { t } = useI18n();
+  const r = useReading();
+  const media = useRef<HTMLMediaElement>(null);
+  useEffect(() => { if (media.current) media.current.playbackRate = r.speed; }, [r.speed]);
   if (episode.format === "reading") {
     return (
       <div className="rounded-sm border bg-card px-6 py-10 md:px-14 md:py-14 shadow-[var(--shadow-book)]">
         {episode.documentLabel && <p className="mb-8 text-center text-xs uppercase tracking-[0.2em] text-muted-foreground">{episode.documentLabel}</p>}
-        <div lang={journal.languageCode} className="space-y-6 font-serif text-[1.3rem] leading-[1.85] first-letter:float-left first-letter:mr-2 first-letter:font-display first-letter:text-6xl first-letter:leading-none">
+        <div lang={journal.languageCode} className="reading-text mx-auto reading-width space-y-6 font-serif first-letter:float-left first-letter:mr-2 first-letter:font-display first-letter:text-6xl first-letter:leading-none">
           {episode.body?.map((p, i) => <p key={i}>{p}</p>)}
         </div>
       </div>
@@ -170,7 +192,7 @@ function Media({ journal, episode }: { journal: Journal; episode: Episode }) {
   return (
     <div>
       {episode.mediaUrl ? (
-        isAudio ? <audio controls src={episode.mediaUrl} className="w-full" /> : <video controls src={episode.mediaUrl} className="w-full rounded-lg" />
+        isAudio ? <audio ref={media as React.RefObject<HTMLAudioElement>} controls src={episode.mediaUrl} className="w-full" /> : <video ref={media as React.RefObject<HTMLVideoElement>} controls src={episode.mediaUrl} className="w-full rounded-lg" />
       ) : (
         <div role="note" className={`grid place-items-center rounded-lg border border-dashed text-center p-8 ${isAudio ? "bg-secondary min-h-40" : "bg-sage/30 aspect-video"}`}>
           <div>
@@ -180,7 +202,44 @@ function Media({ journal, episode }: { journal: Journal; episode: Episode }) {
           </div>
         </div>
       )}
-      <Transcript journal={journal} episode={episode} />
+      <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+        <label className="flex items-center gap-2">{t("reading.speed")}
+          <select value={r.speed} onChange={(ev) => setReading({ speed: Number(ev.target.value) })} className="rounded-md border bg-card px-2 py-1">
+            {[0.75, 0.9, 1, 1.25, 1.5].map((v) => <option key={v} value={v}>{v}×</option>)}
+          </select>
+        </label>
+        <button onClick={() => setReading({ transcript: !r.transcript })} aria-pressed={r.transcript} className="rounded-full border px-3 py-1 hover:bg-muted">{r.transcript ? t("reading.hideTranscript") : t("reading.showTranscript")}</button>
+      </div>
+      {r.transcript && <Transcript journal={journal} episode={episode} />}
+    </div>
+  );
+}
+
+/** Lets the learner select a sentence in the story and keep it as a passage. */
+function PassageSaver({ journal, episode, children }: { journal: Journal; episode: Episode; children: React.ReactNode }) {
+  const { t } = useI18n();
+  const ref = useRef<HTMLDivElement>(null);
+  const [sel, setSel] = useState("");
+  useEffect(() => {
+    const onSel = () => {
+      const x = window.getSelection();
+      const txt = x?.toString().trim() ?? "";
+      setSel(x && txt && ref.current?.contains(x.anchorNode) ? txt : "");
+    };
+    document.addEventListener("selectionchange", onSel);
+    return () => document.removeEventListener("selectionchange", onSel);
+  }, []);
+  return (
+    <div ref={ref}>
+      <div className="sticky top-20 z-30 mb-3 flex min-h-10 flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
+        {sel ? (
+          <button onClick={() => { addPassage(journal.id, episode.id, sel); toast.success(t("notes.passageSaved")); window.getSelection()?.removeAllRanges(); setSel(""); }}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-primary-foreground shadow-[var(--shadow-book)]">
+            <Quote className="size-4" aria-hidden /> {t("notes.savePassage")}
+          </button>
+        ) : <p>{t("notes.selectHint")}</p>}
+      </div>
+      {children}
     </div>
   );
 }

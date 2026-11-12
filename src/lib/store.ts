@@ -11,16 +11,33 @@ export interface Entry {
   status: "draft" | "complete";
   revisions: Revision[]; // earlier saved versions, oldest first
 }
-export interface SavedVocab { key: string; journalId: string; episodeId: string; term: string; translation: string; example: string; savedAt: string }
+export type VocabStatus = "new" | "learning" | "mastered";
+export type VocabCategory = "word" | "expression";
+export type ReviewAnswer = "hard" | "familiar" | "easy";
+export interface SavedVocab {
+  key: string; // languageCode:term — one item per word per language, reusable across journals
+  journalId: string; episodeId: string; languageCode: string;
+  term: string; translation: string; example: string; savedAt: string;
+  category: VocabCategory; note: string; status: VocabStatus;
+  interval: number; // days until next review
+  due: string; // iso date of next review
+}
+export interface Passage { id: string; journalId: string; episodeId: string; text: string; note: string; createdAt: string }
 export interface State {
   entries: Entry[];
   vocab: SavedVocab[];
+  passages: Passage[];
+  bookmarks: Record<string, string>; // "journalId/episodeId" -> iso date
+  pending: Record<string, { content: string; savedAt: string }>; // unsaved edits of completed entries, by entry id
+  goals: Record<string, [number, number]>; // "journalId/episodeId" -> personal word goal
   opened: Record<string, string[]>; // journalId -> episodeIds visited
   lastVisit: Record<string, string>; // journalId -> iso date
+  lastEpisode?: { journalId: string; episodeId: string; at: string };
 }
 
 const KEY = "language-journal:v1";
-const empty: State = { entries: [], vocab: [], opened: {}, lastVisit: {} };
+export const emptyState: State = { entries: [], vocab: [], passages: [], bookmarks: {}, pending: {}, goals: {}, opened: {}, lastVisit: {} };
+const empty = emptyState;
 let state: State = empty;
 let loaded = false;
 const listeners = new Set<() => void>();
@@ -30,7 +47,7 @@ function load() {
   loaded = true;
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) state = { ...empty, ...JSON.parse(raw) };
+    if (raw) { const r = JSON.parse(raw); state = { ...empty, ...r, vocab: dedupeVocab((r.vocab ?? []).map(normalizeVocab)) }; }
   } catch { /* ignore */ }
 }
 function set(next: State) {
@@ -54,6 +71,7 @@ export function markOpened(journalId: string, episodeId: string) {
     ...state,
     opened: { ...state.opened, [journalId]: list.includes(episodeId) ? list : [...list, episodeId] },
     lastVisit: { ...state.lastVisit, [journalId]: new Date().toISOString() },
+    lastEpisode: { journalId, episodeId, at: new Date().toISOString() },
   });
 }
 
@@ -76,15 +94,90 @@ export function saveEntry(s: State, journalId: string, episodeId: string, conten
 export function persistEntry(...args: Parameters<typeof saveEntry> extends [State, ...infer R] ? R : never) {
   load();
   const r = saveEntry(state, ...args);
-  set(r.state);
+  const { [r.entry.id]: _, ...pending } = r.state.pending;
+  set({ ...r.state, pending });
   return r.entry;
 }
 
-export function toggleVocab(v: Omit<SavedVocab, "key" | "savedAt">) {
+export const vocabKey = (languageCode: string, term: string) => `${languageCode}:${term.trim().toLowerCase()}`;
+
+/** Upgrades items saved by older versions (no status/language) to the current shape. */
+export function normalizeVocab(v: Partial<SavedVocab> & { term: string; journalId: string }): SavedVocab {
+  const languageCode = v.languageCode ?? (v.journalId.includes("camille") ? "fr" : "de");
+  const savedAt = v.savedAt ?? new Date().toISOString();
+  return {
+    journalId: v.journalId, episodeId: v.episodeId ?? "", languageCode, term: v.term,
+    translation: v.translation ?? "", example: v.example ?? "", savedAt,
+    category: v.category ?? (v.term.trim().includes(" ") ? "expression" : "word"),
+    note: v.note ?? "", status: v.status ?? "new", interval: v.interval ?? 0, due: v.due ?? savedAt,
+    key: vocabKey(languageCode, v.term),
+  };
+}
+function dedupeVocab(list: SavedVocab[]) {
+  const seen = new Set<string>();
+  return list.filter((v) => (seen.has(v.key) ? false : (seen.add(v.key), true)));
+}
+
+/** Adds a word, or removes it when already saved. Saving the same word twice never duplicates it. */
+export function toggleVocabIn(s: State, v: Pick<SavedVocab, "journalId" | "episodeId" | "languageCode" | "term" | "translation" | "example"> & { category?: VocabCategory }): State {
+  const key = vocabKey(v.languageCode, v.term);
+  if (s.vocab.some((x) => x.key === key)) return { ...s, vocab: s.vocab.filter((x) => x.key !== key) };
+  return { ...s, vocab: [...s.vocab, normalizeVocab({ ...v, savedAt: new Date().toISOString() })] };
+}
+export function toggleVocab(v: Parameters<typeof toggleVocabIn>[1]) { load(); set(toggleVocabIn(state, v)); }
+export function updateVocab(key: string, patch: Partial<Pick<SavedVocab, "translation" | "note" | "status" | "category" | "example">>) {
+  load(); set({ ...state, vocab: state.vocab.map((v) => (v.key === key ? { ...v, ...patch } : v)) });
+}
+export function deleteVocab(key: string) { load(); set({ ...state, vocab: state.vocab.filter((v) => v.key !== key) }); }
+
+/** Spaced review: hard comes back tomorrow, familiar a little later, easy waits longer each time. */
+export function scheduleReview(v: SavedVocab, answer: ReviewAnswer, now = new Date()): SavedVocab {
+  const interval = answer === "hard" ? 1 : answer === "familiar" ? Math.max(3, Math.round(v.interval * 1.5)) : Math.max(7, Math.round(v.interval * 2.5));
+  const due = new Date(now); due.setDate(due.getDate() + interval);
+  const status: VocabStatus = answer === "easy" && interval >= 14 ? "mastered" : "learning";
+  return { ...v, interval, due: due.toISOString(), status };
+}
+export function reviewVocab(key: string, answer: ReviewAnswer) {
+  load(); set({ ...state, vocab: state.vocab.map((v) => (v.key === key ? scheduleReview(v, answer) : v)) });
+}
+export const dueVocab = (s: State, now = new Date()) => s.vocab.filter((v) => new Date(v.due) <= now).sort((a, b) => a.due.localeCompare(b.due));
+
+// Passages & bookmarks
+export const epKey = (journalId: string, episodeId: string) => `${journalId}/${episodeId}`;
+export function toggleBookmark(journalId: string, episodeId: string) {
   load();
-  const key = `${v.journalId}:${v.term}`;
-  const has = state.vocab.some((x) => x.key === key);
-  set({ ...state, vocab: has ? state.vocab.filter((x) => x.key !== key) : [...state.vocab, { ...v, key, savedAt: new Date().toISOString() }] });
+  const k = epKey(journalId, episodeId);
+  const { [k]: had, ...rest } = state.bookmarks;
+  set({ ...state, bookmarks: had ? rest : { ...state.bookmarks, [k]: new Date().toISOString() } });
+}
+/** Saves a passage once per episode; saving the same text again returns the existing one. */
+export function addPassageIn(s: State, journalId: string, episodeId: string, text: string, note = ""): { state: State; passage: Passage } {
+  const clean = text.trim().replace(/\s+/g, " ");
+  const existing = s.passages.find((p) => p.journalId === journalId && p.episodeId === episodeId && p.text === clean);
+  if (existing) return { state: s, passage: existing };
+  const passage = { id: crypto.randomUUID(), journalId, episodeId, text: clean, note, createdAt: new Date().toISOString() };
+  return { state: { ...s, passages: [passage, ...s.passages] }, passage };
+}
+export function addPassage(journalId: string, episodeId: string, text: string) { load(); const r = addPassageIn(state, journalId, episodeId, text); set(r.state); return r.passage; }
+export function updatePassage(id: string, note: string) { load(); set({ ...state, passages: state.passages.map((p) => (p.id === id ? { ...p, note } : p)) }); }
+export function deletePassage(id: string) { load(); set({ ...state, passages: state.passages.filter((p) => p.id !== id) }); }
+
+// Writing helpers
+/** Autosave: drafts are updated in place (no revision per keystroke); completed entries keep edits pending until saved. */
+export function autosaveIn(s: State, journalId: string, episodeId: string, content: string, id?: string): { state: State; id?: string | undefined } {
+  if (!content.trim()) return { state: s, id };
+  const existing = id ? s.entries.find((e) => e.id === id) : undefined;
+  const now = new Date().toISOString();
+  if (!existing) { const r = saveEntry(s, journalId, episodeId, content, "draft"); return { state: r.state, id: r.entry.id }; }
+  if (existing.content === content) { const { [existing.id]: _, ...pending } = s.pending; return { state: { ...s, pending }, id }; }
+  if (existing.status === "draft") return { state: { ...s, entries: s.entries.map((e) => (e.id === id ? { ...e, content, updatedAt: now } : e)) }, id };
+  return { state: { ...s, pending: { ...s.pending, [existing.id]: { content, savedAt: now } } }, id };
+}
+export function autosave(...args: Parameters<typeof autosaveIn> extends [State, ...infer R] ? R : never) { load(); const r = autosaveIn(state, ...args); if (r.state !== state) set(r.state); return r.id; }
+export function clearPending(id: string) { load(); const { [id]: _, ...pending } = state.pending; set({ ...state, pending }); }
+export function setGoal(journalId: string, episodeId: string, goal: [number, number] | null) {
+  load(); const k = epKey(journalId, episodeId); const { [k]: _, ...rest } = state.goals;
+  set({ ...state, goals: goal ? { ...rest, [k]: goal } : rest });
 }
 
 export function completedEpisodes(s: State, journalId: string) {

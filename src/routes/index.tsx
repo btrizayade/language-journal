@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { journals } from "@/lib/content";
 import { useStore, completedEpisodes } from "@/lib/store";
+import { ContinueLearning } from "@/components/ContinueLearning";
 import { BookCard } from "@/components/BookCard";
 import { useI18n } from "@/lib/i18n";
 
@@ -31,6 +32,8 @@ function Library() {
         <h1 className="mt-4 text-5xl md:text-6xl leading-[1.05]">{t("library.title1")} <em className="text-sage-deep">{t("library.title2")}</em></h1>
         <p className="mt-6 font-serif text-xl leading-relaxed text-muted-foreground">{t("library.intro")}</p>
       </section>
+
+      <ContinueLearning />
 
       {started.length > 0 && (
         <section aria-labelledby="continuar" className="mb-20">

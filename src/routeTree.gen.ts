@@ -11,8 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EntradasRouteImport } from './routes/entradas'
+import { Route as NotasRouteImport } from './routes/notas'
 import { Route as PreferenciasRouteImport } from './routes/preferencias'
 import { Route as ProgressoRouteImport } from './routes/progresso'
+import { Route as RevisaoRouteImport } from './routes/revisao'
+import { Route as VocabularioRouteImport } from './routes/vocabulario'
 import { Route as DiarioJournalIdRouteImport } from './routes/diario.$journalId'
 import { Route as EpisodioJournalIdEpisodeIdRouteImport } from './routes/episodio.$journalId.$episodeId'
 
@@ -26,6 +29,11 @@ const EntradasRoute = EntradasRouteImport.update({
   path: '/entradas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotasRoute = NotasRouteImport.update({
+  id: '/notas',
+  path: '/notas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PreferenciasRoute = PreferenciasRouteImport.update({
   id: '/preferencias',
   path: '/preferencias',
@@ -34,6 +42,16 @@ const PreferenciasRoute = PreferenciasRouteImport.update({
 const ProgressoRoute = ProgressoRouteImport.update({
   id: '/progresso',
   path: '/progresso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RevisaoRoute = RevisaoRouteImport.update({
+  id: '/revisao',
+  path: '/revisao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VocabularioRoute = VocabularioRouteImport.update({
+  id: '/vocabulario',
+  path: '/vocabulario',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiarioJournalIdRoute = DiarioJournalIdRouteImport.update({
@@ -51,16 +69,22 @@ const EpisodioJournalIdEpisodeIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/entradas': typeof EntradasRoute
+  '/notas': typeof NotasRoute
   '/preferencias': typeof PreferenciasRoute
   '/progresso': typeof ProgressoRoute
+  '/revisao': typeof RevisaoRoute
+  '/vocabulario': typeof VocabularioRoute
   '/diario/$journalId': typeof DiarioJournalIdRoute
   '/episodio/$journalId/$episodeId': typeof EpisodioJournalIdEpisodeIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/entradas': typeof EntradasRoute
+  '/notas': typeof NotasRoute
   '/preferencias': typeof PreferenciasRoute
   '/progresso': typeof ProgressoRoute
+  '/revisao': typeof RevisaoRoute
+  '/vocabulario': typeof VocabularioRoute
   '/diario/$journalId': typeof DiarioJournalIdRoute
   '/episodio/$journalId/$episodeId': typeof EpisodioJournalIdEpisodeIdRoute
 }
@@ -68,8 +92,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/entradas': typeof EntradasRoute
+  '/notas': typeof NotasRoute
   '/preferencias': typeof PreferenciasRoute
   '/progresso': typeof ProgressoRoute
+  '/revisao': typeof RevisaoRoute
+  '/vocabulario': typeof VocabularioRoute
   '/diario/$journalId': typeof DiarioJournalIdRoute
   '/episodio/$journalId/$episodeId': typeof EpisodioJournalIdEpisodeIdRoute
 }
@@ -78,24 +105,33 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/entradas'
+    | '/notas'
     | '/preferencias'
     | '/progresso'
+    | '/revisao'
+    | '/vocabulario'
     | '/diario/$journalId'
     | '/episodio/$journalId/$episodeId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/entradas'
+    | '/notas'
     | '/preferencias'
     | '/progresso'
+    | '/revisao'
+    | '/vocabulario'
     | '/diario/$journalId'
     | '/episodio/$journalId/$episodeId'
   id:
     | '__root__'
     | '/'
     | '/entradas'
+    | '/notas'
     | '/preferencias'
     | '/progresso'
+    | '/revisao'
+    | '/vocabulario'
     | '/diario/$journalId'
     | '/episodio/$journalId/$episodeId'
   fileRoutesById: FileRoutesById
@@ -103,8 +139,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EntradasRoute: typeof EntradasRoute
+  NotasRoute: typeof NotasRoute
   PreferenciasRoute: typeof PreferenciasRoute
   ProgressoRoute: typeof ProgressoRoute
+  RevisaoRoute: typeof RevisaoRoute
+  VocabularioRoute: typeof VocabularioRoute
   DiarioJournalIdRoute: typeof DiarioJournalIdRoute
   EpisodioJournalIdEpisodeIdRoute: typeof EpisodioJournalIdEpisodeIdRoute
 }
@@ -125,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EntradasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notas': {
+      id: '/notas'
+      path: '/notas'
+      fullPath: '/notas'
+      preLoaderRoute: typeof NotasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/preferencias': {
       id: '/preferencias'
       path: '/preferencias'
@@ -137,6 +183,20 @@ declare module '@tanstack/react-router' {
       path: '/progresso'
       fullPath: '/progresso'
       preLoaderRoute: typeof ProgressoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/revisao': {
+      id: '/revisao'
+      path: '/revisao'
+      fullPath: '/revisao'
+      preLoaderRoute: typeof RevisaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vocabulario': {
+      id: '/vocabulario'
+      path: '/vocabulario'
+      fullPath: '/vocabulario'
+      preLoaderRoute: typeof VocabularioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/diario/$journalId': {
@@ -159,8 +219,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EntradasRoute: EntradasRoute,
+  NotasRoute: NotasRoute,
   PreferenciasRoute: PreferenciasRoute,
   ProgressoRoute: ProgressoRoute,
+  RevisaoRoute: RevisaoRoute,
+  VocabularioRoute: VocabularioRoute,
   DiarioJournalIdRoute: DiarioJournalIdRoute,
   EpisodioJournalIdEpisodeIdRoute: EpisodioJournalIdEpisodeIdRoute,
 }

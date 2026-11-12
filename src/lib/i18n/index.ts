@@ -1,21 +1,22 @@
 import { useSyncExternalStore } from "react";
-import { pt, type MessageKey, type Dictionary } from "./pt";
+import { pt, type MessageKey as BaseKey, type Dictionary } from "./pt";
 import { en } from "./en";
 import { fr } from "./fr";
 import { de } from "./de";
 import { es } from "./es";
+import { extra, type ExtraKey } from "./extra";
 
 /** Add a locale here (plus its dictionary) to support another interface language. */
 export const LOCALES = [
-  { code: "pt-BR", short: "pt", native: "Português (Brasil)", dict: pt as Dictionary },
-  { code: "en", short: "en", native: "English", dict: en },
-  { code: "fr", short: "fr", native: "Français", dict: fr },
-  { code: "de", short: "de", native: "Deutsch", dict: de },
-  { code: "es", short: "es", native: "Español", dict: es },
+  { code: "pt-BR", short: "pt", native: "Português (Brasil)", dict: { ...(pt as Dictionary), ...extra["pt-BR"] } },
+  { code: "en", short: "en", native: "English", dict: { ...en, ...extra.en } },
+  { code: "fr", short: "fr", native: "Français", dict: { ...fr, ...extra.fr } },
+  { code: "de", short: "de", native: "Deutsch", dict: { ...de, ...extra.de } },
+  { code: "es", short: "es", native: "Español", dict: { ...es, ...extra.es } },
 ] as const;
 export type Locale = (typeof LOCALES)[number]["code"];
 export const DEFAULT_LOCALE: Locale = "pt-BR";
-export type { MessageKey };
+export type MessageKey = BaseKey | ExtraKey;
 
 export interface Prefs { interface: Locale; explanation: Locale | null } // null = follow interface
 const KEY = "language-journal:prefs";
@@ -50,8 +51,9 @@ export function usePrefs(): Prefs {
 
 /** Translate with pt-BR fallback and {var} interpolation. */
 export function translate(locale: Locale, key: MessageKey, vars?: Record<string, string | number>) {
-  const dict = LOCALES.find((l) => l.code === locale)?.dict ?? pt;
-  const s: string = dict[key] ?? pt[key] ?? key;
+  const base = LOCALES[0].dict as Record<MessageKey, string>;
+  const dict = (LOCALES.find((l) => l.code === locale)?.dict ?? base) as Record<MessageKey, string>;
+  const s: string = dict[key] ?? base[key] ?? key;
   return vars ? s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`)) : s;
 }
 

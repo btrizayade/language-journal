@@ -133,3 +133,34 @@
   }
   h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
 }
+
+/* Dark theme: same literary palette, inverted for night reading */
+.dark {
+  --background: oklch(0.2 0.02 305);
+  --foreground: oklch(0.92 0.012 85);
+  --card: oklch(0.24 0.022 305);
+  --card-foreground: oklch(0.92 0.012 85);
+  --popover: oklch(0.24 0.022 305);
+  --popover-foreground: oklch(0.92 0.012 85);
+  --primary: oklch(0.88 0.03 300);
+  --primary-foreground: oklch(0.22 0.03 305);
+  --secondary: oklch(0.32 0.04 300);
+  --secondary-foreground: oklch(0.92 0.012 85);
+  --muted: oklch(0.27 0.02 305);
+  --muted-foreground: oklch(0.74 0.02 300);
+  --accent: oklch(0.36 0.04 355);
+  --accent-foreground: oklch(0.92 0.012 85);
+  --lavender: oklch(0.62 0.09 300);
+  --pink: oklch(0.36 0.05 355);
+  --sage: oklch(0.42 0.04 135);
+  --sage-deep: oklch(0.78 0.06 135);
+  --border: oklch(0.34 0.025 300);
+  --input: oklch(0.34 0.025 300);
+  --ring: oklch(0.7 0.08 300);
+}
+/* High contrast: stronger text and borders, in either theme */
+.contrast { --foreground: oklch(0.12 0.02 305); --muted-foreground: oklch(0.3 0.03 305); --border: oklch(0.45 0.03 300); --card-foreground: oklch(0.12 0.02 305); }
+.contrast.dark { --foreground: oklch(0.99 0 0); --muted-foreground: oklch(0.88 0.01 300); --border: oklch(0.7 0.03 300); --card-foreground: oklch(0.99 0 0); }
+.focus-mode .site-chrome { display: none; }
+.reading-text { font-size: var(--read-size, 1.3rem); line-height: var(--read-leading, 1.85); }
+.reading-width { max-width: var(--read-width, 42rem); }
