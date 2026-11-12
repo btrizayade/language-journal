@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useRef } from "react";
 import { Languages } from "lucide-react";
 import { LOCALES, setPrefs, useI18n, type Locale } from "@/lib/i18n";
 import { useSync } from "@/lib/sync";
@@ -15,16 +16,31 @@ const nav = [
 export function SiteHeader() {
   const { t, locale } = useI18n();
   const { user } = useSync();
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    let lastScrolled: boolean | undefined;
+    const update = () => {
+      const scrolled = window.scrollY > 32;
+      if (scrolled === lastScrolled) return;
+      lastScrolled = scrolled;
+      headerRef.current?.setAttribute("data-scrolled", String(scrolled));
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
   return (
-    <header className="site-chrome border-b bg-background/90 backdrop-blur sticky top-0 z-40">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
-        <Link to="/" className="font-display text-2xl italic">Language Journal</Link>
-        <div className="flex flex-wrap items-center gap-2">
-          <nav aria-label={t("nav.label")} className="flex flex-wrap gap-1 text-sm">
+    <header ref={headerRef} className="site-chrome storybook-topbar sticky top-0 z-40">
+      <div className="topbar-inner mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-6 py-3">
+        <Link to="/" className="topbar-brand flex shrink-0 items-center gap-2 font-display text-2xl italic">
+          <img src="/favicon.svg" width={34} height={34} alt="" aria-hidden />Language Journal
+        </Link>
+        <div className="topbar-controls flex flex-wrap items-center gap-2">
+          <nav aria-label={t("nav.label")} className="topbar-nav flex flex-wrap gap-1 text-sm">
             {nav.map((n) => (
               <Link key={n.to} to={n.to} activeOptions={{ exact: n.to === "/" }}
-                className="nav-link rounded-full px-3 py-1.5 text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
-                activeProps={{ className: "bg-secondary text-foreground" }}>{t(n.key)}</Link>
+                className="nav-link px-2 py-2 text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                activeProps={{ "aria-current": "page" }}>{t(n.key)}</Link>
             ))}
           </nav>
           {user

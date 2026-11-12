@@ -4,3 +4,10 @@
 - [x] Extend the individual transparent asset collection: 6 books, 5 potions, 3 mirrors, 12 celestial ornaments, additional objects.
 - [x] Distribute intentional compositions through the library, journal, episode, notebook, entries, preferences and footer.
 - [x] Verify five requested viewport sizes, reduced motion, reading/writing usability and regression tests (27 passing); guest draft save/read-back checked, signed-in Cloud sync unchanged and not retested.
+
+# Topbar, native scrollbar and favicon refinement
+
+- [x] Refine the existing topbar with translucent parchment and threshold-based scroll states, retaining all navigation.
+- [x] Theme only the native page scrollbar on desktop with aged-gold tokens.
+- [x] Create and integrate a book-and-star favicon with raster variants.
+- [x] Check desktop/mobile, all five interface languages, icon references and regression tests (27 passed; preview build OK). Published-tab favicon caching remains unverified until publication; authentication and sync were unchanged, not retested.

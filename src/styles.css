@@ -88,9 +88,16 @@
   --font-hand: "Caveat", "Segoe Print", cursive;
   --shadow-paper: var(--shadow-paper);
   --shadow-lift: var(--shadow-lift);
+  --color-aged-gold: var(--aged-gold);
 }
 
 :root {
+  --aged-gold: oklch(0.657 0.09 77);
+  --aged-gold-hover: oklch(0.568 0.082 75);
+  --aged-gold-active: oklch(0.501 0.074 73);
+  --scroll-track: oklch(0.935 0.023 78);
+  --scroll-border: oklch(0.877 0.037 80);
+  --shadow-topbar: 0 5px 18px -12px color-mix(in oklab, var(--cocoa) 28%, transparent);
   --radius: 0.5rem;
   --background: oklch(0.965 0.013 85);
   --foreground: oklch(0.35 0.05 315);
@@ -157,6 +164,11 @@
 
 /* Dark theme: same literary palette, inverted for night reading */
 .dark {
+  --aged-gold: oklch(0.73 0.08 77);
+  --aged-gold-hover: oklch(0.8 0.08 77);
+  --aged-gold-active: oklch(0.85 0.075 77);
+  --scroll-track: var(--background);
+  --scroll-border: var(--border);
   --background: oklch(0.2 0.02 305);
   --foreground: oklch(0.92 0.012 85);
   --card: oklch(0.24 0.022 305);
@@ -299,10 +311,10 @@
 .reading-ribbon-fill { height: 100%; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--sage), var(--lavender), var(--blush, var(--lavender))); transition: transform .15s linear; }
 
 .nav-link { position: relative; transition: color .25s, background-color .25s; }
-.nav-link::after { content: ""; position: absolute; left: 30%; right: 30%; bottom: 2px; height: 2px; border-radius: 2px; background: var(--sage-deep, var(--sage)); transform: scaleX(0); transition: transform .3s ease; }
+.nav-link::after { content: ""; position: absolute; left: 20%; right: 20%; bottom: 2px; height: 2px; border-radius: 2px; background: var(--aged-gold); transform: scaleX(0); transition: transform .3s ease; }
 .nav-link:hover::after { transform: scaleX(.6); }
 .nav-link[data-status="active"]::after { transform: scaleX(1); }
-.nav-link[data-status="active"]::before { content: "✦"; position: absolute; top: -6px; right: 2px; font-size: 9px; color: var(--sage-deep, var(--sage)); }
+.nav-link[data-status="active"]::before { content: ""; position: absolute; top: -4px; right: 5px; width: 5px; height: 8px; background: var(--aged-gold); clip-path: polygon(0 0,100% 0,100% 100%,50% 70%,0 100%); }
 
 button, a { -webkit-tap-highlight-color: transparent; }
 .rounded-full:is(button, a) { transition: translate .2s ease, box-shadow .25s, background-color .25s, color .25s, opacity .25s; }
@@ -327,3 +339,52 @@ button:disabled { opacity: .55; cursor: not-allowed; }
   .reading-ribbon-fill { transition: none; }
 }
 html.reduce-motion .reveal-pending, html.focus-mode .reveal-pending { opacity: 1; transform: none; }
+
+/* Parchment chrome: only the existing top navigation and native page scrollbar. */
+.storybook-topbar {
+  background: color-mix(in oklab, var(--background) 82%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid color-mix(in oklab, var(--aged-gold) 16%, transparent);
+  box-shadow: none;
+  transition: background-color .35s ease, border-color .35s ease, box-shadow .35s ease, backdrop-filter .35s ease;
+}
+.storybook-topbar[data-scrolled="true"] {
+  background: color-mix(in oklab, var(--background) 95%, transparent);
+  backdrop-filter: blur(16px);
+  border-bottom-color: color-mix(in oklab, var(--aged-gold) 36%, transparent);
+  box-shadow: var(--shadow-topbar);
+}
+.topbar-brand { color: var(--foreground); white-space: nowrap; }
+.topbar-controls { min-width: 0; }
+.topbar-controls > a, .topbar-controls > label { min-height: 36px; display: inline-flex; align-items: center; }
+.topbar-nav .nav-link { white-space: nowrap; border-radius: 4px; }
+.topbar-nav .nav-link:hover { background: color-mix(in oklab, var(--aged-gold) 10%, transparent); }
+.topbar-nav .nav-link[data-status="active"] { color: var(--foreground); }
+@media (max-width: 1279px) {
+  .topbar-inner { justify-content: center; gap: 8px; }
+  .topbar-controls { justify-content: center; }
+}
+@media (max-width: 639px) {
+  .storybook-topbar { background: color-mix(in oklab, var(--background) 96%, transparent); }
+  .topbar-inner { padding-inline: 16px; }
+  .topbar-nav { width: 100%; justify-content: center; }
+  .topbar-nav .nav-link { min-height: 44px; display: inline-flex; align-items: center; }
+  .topbar-controls > a, .topbar-controls > label { min-height: 44px; }
+}
+@media (hover: hover) and (pointer: fine) {
+  html { scrollbar-color: var(--aged-gold) var(--scroll-track); scrollbar-width: thin; }
+  /* Prefer the native pseudo-elements in Chromium/Safari; Firefox keeps the fallback. */
+  @supports selector(::-webkit-scrollbar) {
+    html { scrollbar-color: auto; scrollbar-width: auto; }
+    html::-webkit-scrollbar { width: 10px; height: 10px; }
+    html::-webkit-scrollbar-track { background: var(--scroll-track); }
+    html::-webkit-scrollbar-thumb { background: var(--aged-gold); border: 2px solid var(--scroll-track); border-radius: 8px; box-shadow: inset 0 0 0 1px var(--scroll-border); }
+    html::-webkit-scrollbar-thumb:hover { background: var(--aged-gold-hover); }
+    html::-webkit-scrollbar-thumb:active { background: var(--aged-gold-active); }
+    html::-webkit-scrollbar-corner { background: var(--scroll-track); }
+  }
+}
+@media (forced-colors: active) {
+  html { scrollbar-color: auto; scrollbar-width: auto; }
+  .storybook-topbar { border-bottom: 1px solid CanvasText; }
+}
