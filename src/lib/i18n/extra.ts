@@ -161,6 +161,7 @@ const rows = {
   "entries.unavailable": ["Esta entrada pertence a um episódio que não está mais disponível. Seu texto foi preservado.", "This entry belongs to an episode that is no longer available. Your writing has been kept.", "Cette entrée appartient à un épisode qui n'est plus disponible. Votre texte a été conservé.", "Dieser Eintrag gehört zu einer Folge, die nicht mehr verfügbar ist. Dein Text bleibt erhalten.", "Esta entrada pertenece a un episodio que ya no está disponible. Tu texto se ha conservado."],
   "account.wrongPassword": ["A senha atual não confere.", "The current password is incorrect.", "Le mot de passe actuel est incorrect.", "Das aktuelle Passwort ist falsch.", "La contraseña actual no es correcta."],
   "entries.unknownStory": ["História indisponível", "Unavailable story", "Histoire indisponible", "Geschichte nicht verfügbar", "Historia no disponible"],
+  "episode.readingProgress": ["Progresso da leitura", "Reading progress", "Progression de la lecture", "Lesefortschritt", "Progreso de lectura"],
 } as const satisfies Record<string, readonly [string, string, string, string, string]>;
 
 export type ExtraKey = keyof typeof rows;

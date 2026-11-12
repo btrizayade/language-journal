@@ -23,7 +23,7 @@ export function SiteHeader() {
           <nav aria-label={t("nav.label")} className="flex flex-wrap gap-1 text-sm">
             {nav.map((n) => (
               <Link key={n.to} to={n.to} activeOptions={{ exact: n.to === "/" }}
-                className="rounded-full px-3 py-1.5 text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                className="nav-link rounded-full px-3 py-1.5 text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
                 activeProps={{ className: "bg-secondary text-foreground" }}>{t(n.key)}</Link>
             ))}
           </nav>

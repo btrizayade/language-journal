@@ -266,3 +266,64 @@
 @media (prefers-reduced-motion: reduce) {
   .magic-layer, .magic-layer * { animation: none !important; }
 }
+
+/* ===== Interactive storybook layer (pointer/scroll); all motion gated by fine pointer + reduced motion ===== */
+.scene-live { position: relative; }
+.scene-live [data-depth] { transition: translate .6s cubic-bezier(.2,.7,.2,1); }
+.scene-live [data-depth="1"] { translate: calc(var(--mx,0) * -4px) calc(var(--my,0) * -4px); }
+.scene-live [data-depth="2"] { translate: calc(var(--mx,0) * 8px) calc(var(--my,0) * 7px); }
+.scene-live [data-depth="3"] { translate: calc(var(--mx,0) * 12px) calc(var(--my,0) * 10px); }
+.scene-live::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .5s;
+  background: radial-gradient(260px circle at var(--lx,50%) var(--ly,50%), color-mix(in oklab, var(--butter) 22%, transparent), transparent 70%); }
+.scene-live:hover::after { opacity: 1; }
+.trail-sparkle { position: absolute; pointer-events: none; z-index: 5; translate: -50% -50%; animation: trail-fade .9s ease-out forwards; }
+@keyframes trail-fade { 0% { opacity: 0; transform: scale(.5) rotate(0deg); } 25% { opacity: .85; } 100% { opacity: 0; transform: scale(1) translateY(-14px) rotate(40deg); } }
+
+.tilt-card { perspective: 900px; }
+.tilt-book { position: relative; transition: transform .45s cubic-bezier(.2,.7,.2,1), box-shadow .45s; transform-style: preserve-3d; }
+.tilt-live:hover .tilt-book { transform: translateY(-5px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)); box-shadow: 0 18px 30px -14px color-mix(in oklab, var(--cocoa) 45%, transparent); }
+.tilt-book .tilt-light { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .4s;
+  background: radial-gradient(200px circle at var(--lx,50%) var(--ly,30%), color-mix(in oklab, var(--butter) 30%, transparent), transparent 70%); }
+.tilt-live:hover .tilt-light { opacity: 1; }
+.tilt-card .tilt-ribbon { transition: transform .4s ease; }
+.tilt-live:hover .tilt-ribbon { transform: translateY(4px); }
+.tilt-card .tilt-sparkle { opacity: 0; transform: scale(.6); transition: opacity .4s, transform .4s; }
+.tilt-live:hover .tilt-sparkle { opacity: .9; transform: scale(1); }
+.tilt-card:active .tilt-book { transform: translateY(-2px) scale(.99); }
+
+.reveal-pending { opacity: 0; transform: translateY(14px); }
+.reveal-shown { animation: reveal-up .7s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes reveal-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+.reading-ribbon { position: sticky; top: 0; z-index: 30; height: 3px; background: color-mix(in oklab, var(--cocoa) 10%, transparent); }
+.reading-ribbon-fill { height: 100%; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--sage), var(--lavender), var(--blush, var(--lavender))); transition: transform .15s linear; }
+
+.nav-link { position: relative; transition: color .25s, background-color .25s; }
+.nav-link::after { content: ""; position: absolute; left: 30%; right: 30%; bottom: 2px; height: 2px; border-radius: 2px; background: var(--sage-deep, var(--sage)); transform: scaleX(0); transition: transform .3s ease; }
+.nav-link:hover::after { transform: scaleX(.6); }
+.nav-link[data-status="active"]::after { transform: scaleX(1); }
+.nav-link[data-status="active"]::before { content: "✦"; position: absolute; top: -6px; right: 2px; font-size: 9px; color: var(--sage-deep, var(--sage)); }
+
+button, a { -webkit-tap-highlight-color: transparent; }
+.rounded-full:is(button, a) { transition: translate .2s ease, box-shadow .25s, background-color .25s, color .25s, opacity .25s; }
+@media (hover: hover) and (pointer: fine) { .rounded-full:is(button, a):hover { box-shadow: 0 6px 14px -10px color-mix(in oklab, var(--cocoa) 60%, transparent); } }
+.rounded-full:is(button, a):active { translate: 0 1px; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+
+.stamp-pop { display: inline-flex; animation: stamp-pop .5s cubic-bezier(.3,1.6,.5,1); }
+@keyframes stamp-pop { 0% { transform: scale(.4) rotate(-14deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
+.pen-scribble { display: inline-block; animation: pen-scribble 1.2s ease-in-out 1; }
+@keyframes pen-scribble { 0%,100% { transform: none; } 25% { transform: translate(2px,-1px) rotate(-8deg); } 50% { transform: translate(-1px,1px) rotate(6deg); } 75% { transform: translate(1px,0) rotate(-4deg); } }
+.sparkle-burst { position: relative; display: inline-block; width: 0; height: 0; pointer-events: none; }
+.sparkle-burst img { position: absolute; width: 12px; left: 0; top: 0; opacity: 0; animation: burst 1s ease-out forwards; animation-delay: calc(var(--i) * 60ms); }
+@keyframes burst { 0% { opacity: 0; transform: translate(0,0) scale(.4); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(calc((var(--i) - 2) * 14px), calc(-18px - var(--i) * 3px)) scale(1) rotate(60deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-live [data-depth] { translate: none !important; }
+  .trail-sparkle, .sparkle-burst { display: none; }
+  .tilt-live:hover .tilt-book { transform: none; }
+  .reveal-pending { opacity: 1; transform: none; }
+  .reveal-shown, .stamp-pop, .pen-scribble { animation: none; }
+  .reading-ribbon-fill { transition: none; }
+}
+html.reduce-motion .reveal-pending, html.focus-mode .reveal-pending { opacity: 1; transform: none; }

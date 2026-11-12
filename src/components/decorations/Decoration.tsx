@@ -19,6 +19,8 @@ export interface DecorationProps {
   className?: string;
   /** set when the image carries meaning; otherwise it is hidden from assistive tech */
   alt?: string;
+  /** parallax depth inside an interactive scene: 1 background, 2 middle, 3 foreground */
+  depth?: 1 | 2 | 3;
 }
 
 const anim: Record<Exclude<DecorationMotion, "none">, string> = {
@@ -39,7 +41,7 @@ function useInView<T extends Element>() {
   return [ref, visible] as const;
 }
 
-export function Decoration({ asset, size, pos, motion = "float", duration, delay = 0, rotate = 0, opacity = 1, className, alt }: DecorationProps) {
+export function Decoration({ asset, size, pos, motion = "float", duration, delay = 0, rotate = 0, opacity = 1, className, alt, depth }: DecorationProps) {
   const [ref, visible] = useInView<HTMLDivElement>();
   const dur = duration ?? (motion === "twinkle" ? 3 : 9);
   const style: CSSProperties = {
@@ -47,7 +49,7 @@ export function Decoration({ asset, size, pos, motion = "float", duration, delay
     animation: motion === "none" ? undefined : `${anim[motion]} ${dur}s ease-in-out ${-delay}s infinite`,
   };
   return (
-    <div ref={ref} className={cn("magic-layer absolute", !visible && "magic-paused", className)} style={style} aria-hidden={alt ? undefined : true}>
+    <div ref={ref} className={cn("magic-layer absolute", !visible && "magic-paused", className)} style={style} data-depth={depth} aria-hidden={alt ? undefined : true}>
       {motion === "potion" || motion === "openBook" ? (
         <span className="absolute inset-[25%] rounded-full bg-butter/20" style={{ animation: `magic-glow ${dur * 0.6}s ease-in-out ${-delay}s infinite` }} />
       ) : null}

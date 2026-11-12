@@ -80,7 +80,7 @@ export function WritingStudio({ journal, episode, entry, explLang = "pt-BR" }: {
           <p aria-live="polite">
             {t("common.words", { n: words })} {words >= min && words <= max ? `· ${t("studio.within")}` : words > max ? `· ${t("studio.above")}` : words > 0 ? `· ${t("studio.toGo", { n: min - words })}` : ""}
           </p>
-          <p className="text-xs" aria-live="polite">{autoState === "saving" ? t("studio.autosaving") : autoState === "saved" ? t("studio.autosaved") : current ? `${current.status === "complete" ? t("entries.complete") : t("entries.draft")} · ${t("studio.lastSaved", { time: new Date(current.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) })}` : ""}</p>
+          <p className="text-xs" aria-live="polite">{autoState === "saving" ? t("studio.autosaving") : autoState === "saved" ? <><span key={current?.updatedAt} className="pen-scribble" aria-hidden="true">✒︎</span> {t("studio.autosaved")}</> : current ? `${current.status === "complete" ? t("entries.complete") : t("entries.draft")} · ${t("studio.lastSaved", { time: new Date(current.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) })}` : ""}</p>
           <p className="text-xs">{t("studio.range", { min, max })}</p>
         </div>
         <p className="basis-full text-xs text-muted-foreground md:order-last">{t("studio.completeHint")}</p>

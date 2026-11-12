@@ -1,3 +1,4 @@
+import { ReadingProgress, SparkleBurst } from "@/components/interactions";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -51,12 +52,14 @@ function EpisodePage() {
   const isSaved = (term: string) => s.vocab.some((x) => x.key === vocabKey(j.languageCode, term));
 
   return (
-    <article className="mx-auto max-w-3xl px-6 py-12">
+    <>
+    <ReadingProgress targetId="episode-reading" label={t("episode.readingProgress")} />
+    <article id="episode-reading" className="mx-auto max-w-3xl px-6 py-12">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link to="/diario/$journalId" params={{ journalId: j.id }} className="text-sm text-muted-foreground hover:text-foreground">← {j.title}</Link>
         <div className="flex gap-2 text-sm">
           <button onClick={() => toggleBookmark(j.id, e.id)} aria-pressed={bookmarked} className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">
-            {bookmarked ? <BookmarkCheck className="size-4 text-sage-deep" aria-hidden /> : <Bookmark className="size-4" aria-hidden />}{bookmarked ? t("notes.bookmarked") : t("notes.bookmark")}
+            {bookmarked ? <span key="on" className="stamp-pop"><BookmarkCheck className="size-4 text-sage-deep" aria-hidden /><SparkleBurst show /></span> : <Bookmark className="size-4" aria-hidden />}{bookmarked ? t("notes.bookmarked") : t("notes.bookmark")}
           </button>
           <button onClick={() => setReading({ focus: true })} className="rounded-full border px-3 py-1.5 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">{t("reading.focus")}</button>
         </div>
@@ -92,7 +95,7 @@ function EpisodePage() {
                   <button onClick={() => toggleVocab({ journalId: j.id, episodeId: e.id, languageCode: j.languageCode, category: "word", ...v })} aria-pressed={saved}
                     aria-label={saved ? t("episode.unsaveWord", { term: v.term }) : t("episode.saveWord", { term: v.term })}
                     className="rounded-full p-2 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">
-                    {saved ? <BookmarkCheck className="size-5 text-sage-deep" /> : <Bookmark className="size-5" />}
+                    {saved ? <span className="stamp-pop"><BookmarkCheck className="size-5 text-sage-deep" /><SparkleBurst show /></span> : <Bookmark className="size-5" />}
                   </button>
                 </div>
                 <p lang={j.languageCode} className="mt-2 font-serif italic">« {v.example} »</p>
@@ -109,7 +112,7 @@ function EpisodePage() {
                 <button onClick={() => toggleVocab({ journalId: j.id, episodeId: e.id, languageCode: j.languageCode, term: x.term, translation: x.meaning, example: "", category: "expression" })}
                   aria-pressed={isSaved(x.term)} aria-label={isSaved(x.term) ? t("episode.unsaveWord", { term: x.term }) : t("episode.saveWord", { term: x.term })}
                   className="rounded-full p-2 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">
-                  {isSaved(x.term) ? <BookmarkCheck className="size-5 text-sage-deep" /> : <Bookmark className="size-5" />}
+                  {isSaved(x.term) ? <span className="stamp-pop"><BookmarkCheck className="size-5 text-sage-deep" /><SparkleBurst show /></span> : <Bookmark className="size-5" />}
                 </button>
               </dd>
             </div>
@@ -150,6 +153,7 @@ function EpisodePage() {
           : <Link to="/diario/$journalId" params={{ journalId: j.id }} className="hover:underline">{t("episode.end")}</Link>}
       </nav>
     </article>
+    </>
   );
 }
 

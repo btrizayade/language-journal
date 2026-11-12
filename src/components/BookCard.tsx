@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import type { Journal } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
+import { useTilt } from "@/components/interactions";
+import { magicalAssets } from "@/components/decorations/assets";
 import { RibbonBookmark, StampBadge } from "@/components/ui/scrapbook";
 
 export function ProgressBar({ value, label }: { value: number; label: string }) {
@@ -17,12 +19,16 @@ export function BookCard({ journal, done }: { journal: Journal; done: number }) 
   const { t, langName } = useI18n();
   const main = journal.characters.find((c) => c.main);
   const total = journal.episodes.length;
+  const tilt = useTilt<HTMLAnchorElement>();
   return (
-    <Link to="/diario/$journalId" params={{ journalId: journal.id }} className="group block paper-card lift p-4 pb-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
+    <Link ref={tilt} to="/diario/$journalId" params={{ journalId: journal.id }} className="tilt-card group block paper-card lift p-4 pb-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
       <div className="relative">
-      {done > 0 && <RibbonBookmark tint="butter" className="absolute -top-1 right-5 z-10" />}
-      <div className="overflow-hidden rounded-r-md rounded-l-sm border border-cocoa/30 shadow-[var(--shadow-book)] transition-transform duration-300 group-hover:-rotate-1">
+      {done > 0 && <RibbonBookmark tint="butter" className="tilt-ribbon absolute -top-1 right-5 z-10" />}
+      <img src={magicalAssets.sparkleSmall} alt="" aria-hidden="true" width={18} height={18} className="tilt-sparkle pointer-events-none absolute -left-2 top-6 z-10 w-[18px]" />
+      <img src={magicalAssets.starEight} alt="" aria-hidden="true" width={14} height={14} className="tilt-sparkle pointer-events-none absolute -right-1 bottom-10 z-10 w-[14px]" />
+      <div className="tilt-book overflow-hidden rounded-r-md rounded-l-sm border border-cocoa/30 shadow-[var(--shadow-book)]">
         <img src={journal.cover} alt="" width={768} height={1024} loading="lazy" className="aspect-[3/4] w-full object-cover" />
+        <span className="tilt-light" aria-hidden="true" />
       </div>
       </div>
       <div className="mt-4 space-y-2">
