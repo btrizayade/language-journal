@@ -104,7 +104,6 @@ function Library() {
           </div>
         </section>
       )}
-      <IllustratedBoundary variant="closing" />
       </div>
     </div>
   );
