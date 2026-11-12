@@ -33,7 +33,7 @@ export const es: ContentL10n = {
         vocab: ["hola (muy informal)", "café con leche cremosa", "el dueño / el jefe", "la ventana", "esperar"],
         expr: ["Es súper… (informal, entre amigos)", "En fin / total", "Hay mucha gente", "Besos (despedida entre amigos)"],
         grammar: [
-          ["Presente + depuis (duración)", "Para una acción que empezó en el pasado y continúa, el francés usa el presente + depuis: « il attend depuis des années » = lleva años esperando / espera desde hace años."],
+          ["Presente + depuis × il y a + duración", "Presente + depuis indica una acción que empezó en el pasado y continúa: « il attend depuis des années » = lleva años esperando. Il y a + duración, con un tiempo pasado (passé composé), dice hace cuánto ocurrió un hecho terminado: « j'ai trouvé la lettre il y a deux jours » = encontré la carta hace dos días. No son intercambiables."],
           ["Futuro próximo y propuestas", "En la lengua hablada, el presente sirve para proponer: « Samedi, tu passes au café ? ». También se usa aller + infinitivo: « On va aller au marché »."],
         ],
         culture: [
@@ -53,7 +53,7 @@ export const es: ContentL10n = {
         ],
         culture: [
           ["Los mercados callejeros", "París tiene más de 70 mercados de alimentación. Ir al mercado el sábado es un ritual: charlar con los vendedores, probar quesos, elegir fruta de temporada."],
-          ["Primero, saludar", "En Francia, dirigirse a un comerciante sin decir « Bonjour » se considera de mala educación. Primero el saludo, después la petición."],
+          ["Primero, saludar", "En tiendas, puestos y cafés franceses — como el mercado de la Rue Lepic — se espera un « Bonjour » antes de cualquier pedido; saltárselo suele sonar brusco. Por eso Camille saluda a Madame Leroux antes de hablar de la carta."],
         ],
         prompt: ["¿Y después del mercado?", "Continúa la historia en francés, en tercera persona. Usa al menos dos verbos en passé composé (con avoir o être). Mantén la coherencia de los personajes."],
       },
@@ -82,7 +82,7 @@ export const es: ContentL10n = {
         ],
         culture: [
           ["El Mauerpark", "El parque está donde pasaba la franja fronteriza del Muro de Berlín. Hoy, los domingos, acoge un gran mercadillo y karaoke al aire libre."],
-          ["Domingo de descanso", "En Alemania la mayoría de las tiendas cierran los domingos (Ladenschluss). Por eso los mercadillos, parques y cafés se llenan — y hay que hacer la compra el sábado."],
+          ["Domingo de descanso", "En toda Alemania la mayoría de las tiendas cierra los domingos; las reglas exactas las fija cada estado (en Berlín, la Ladenöffnungsgesetz). Panaderías, tiendas de estación y Spätis suelen abrir. Por eso, en un domingo como el de Lukas, mercadillos y parques se llenan."],
         ],
         prompt: ["Describir la fotografía", "Describe la escena en alemán. Usa « Auf dem Foto sieht man… » y presta atención al verbo en segunda posición. Puedes imaginar detalles."],
       },
@@ -97,7 +97,7 @@ export const es: ContentL10n = {
         ],
         culture: [
           ["Brötchen, Schrippe, Semmel", "El panecillo tiene nombres regionales: Schrippe en Berlín, Semmel en Baviera y Austria, Brötchen en el uso general. Desayunar con pan recién hecho es una tradición muy arraigada."],
-          ["Pagar en efectivo", "Muchos comercios pequeños alemanes aún prefieren el efectivo (« nur bar »). Son habituales los carteles de « Kartenzahlung ab 10 € » (tarjeta a partir de 10 €)."],
+          ["Pagar en efectivo", "El pago con tarjeta ha crecido mucho, pero algunas panaderías, Spätis y puestos pequeños — como el de Frau Yilmaz — aún aceptan solo efectivo (« nur bar ») o piden un mínimo para tarjeta. Conviene preguntar, como hace Lukas."],
         ],
         prompt: ["Lukas conoce a Herr Krüger", "Escribe un diálogo en alemán entre Lukas y Herr Krüger. Usa « Sie » (trato formal), al menos un verbo modal y una pregunta con « Kennen Sie…? »."],
       },

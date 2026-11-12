@@ -33,7 +33,7 @@ export const fr: ContentL10n = {
         vocab: ["salut (très familier)", "café avec du lait chaud mousseux", "le propriétaire, le chef", "ouverture vitrée dans un mur", "rester jusqu'à l'arrivée de quelqu'un ou de quelque chose"],
         expr: ["C'est très… (familier, entre amis)", "Pour résumer / enfin", "Il y a beaucoup de gens", "Formule d'au revoir affectueuse entre amis"],
         grammar: [
-          ["Le présent + depuis", "Pour une action commencée dans le passé qui continue aujourd'hui, le français utilise le présent + depuis : « il attend depuis des années ». On n'emploie pas le passé composé ici."],
+          ["Présent + depuis × il y a + durée", "Le présent + depuis exprime une action commencée dans le passé qui continue aujourd'hui : « il attend depuis des années ». Il y a + durée, avec un temps du passé (passé composé), indique il y a combien de temps un fait terminé a eu lieu : « j'ai trouvé la lettre il y a deux jours ». Les deux ne sont pas interchangeables."],
           ["Futur proche et propositions", "À l'oral, le présent sert à proposer : « Samedi, tu passes au café ? ». On peut aussi utiliser aller + infinitif : « On va aller au marché »."],
         ],
         culture: [
@@ -53,7 +53,7 @@ export const fr: ContentL10n = {
         ],
         culture: [
           ["Les marchés de rue", "Paris compte plus de 70 marchés alimentaires. Aller au marché le samedi est un rituel : discuter avec les marchands, goûter les fromages, choisir les fruits de saison."],
-          ["Saluer avant tout", "En France, s'adresser à un commerçant sans dire « Bonjour » est perçu comme impoli. D'abord la salutation, ensuite la demande."],
+          ["Saluer avant tout", "Dans les commerces, sur les marchés et dans les cafés — comme rue Lepic — on attend un « Bonjour » avant toute demande ; l'oublier paraît souvent brusque. C'est pourquoi Camille salue Madame Leroux avant de parler de la lettre."],
         ],
         prompt: ["Et après le marché ?", "Continue l'histoire en français, à la troisième personne. Utilise au moins deux verbes au passé composé (avec avoir ou être). Garde des personnages cohérents."],
       },
@@ -82,7 +82,7 @@ export const fr: ContentL10n = {
         ],
         culture: [
           ["Le Mauerpark", "Le parc se trouve sur l'ancienne bande frontalière du Mur de Berlin. Aujourd'hui, le dimanche, il accueille un grand marché aux puces et un karaoké en plein air."],
-          ["Le dimanche, jour de repos", "En Allemagne, la plupart des magasins ferment le dimanche (Ladenschluss). Les marchés aux puces, les parcs et les cafés sont donc pleins — et il faut faire ses courses le samedi."],
+          ["Le dimanche, jour de repos", "Dans toute l'Allemagne, la plupart des magasins ferment le dimanche ; les règles précises dépendent de chaque Land (à Berlin, le Ladenöffnungsgesetz). Boulangeries, commerces de gare et Spätis ouvrent souvent. Voilà pourquoi, un dimanche comme celui de Lukas, marchés aux puces et parcs sont pleins."],
         ],
         prompt: ["Décrire la photographie", "Décris la scène en allemand. Utilise « Auf dem Foto sieht man… » et fais attention au verbe en deuxième position. Tu peux imaginer des détails."],
       },
@@ -97,7 +97,7 @@ export const fr: ContentL10n = {
         ],
         culture: [
           ["Brötchen, Schrippe, Semmel", "Le petit pain a des noms régionaux : Schrippe à Berlin, Semmel en Bavière et en Autriche, Brötchen dans l'usage général. Le petit-déjeuner avec du pain frais est une tradition forte."],
-          ["L'argent liquide", "Beaucoup de petits commerces allemands préfèrent encore les espèces (« nur bar »). On voit souvent des panneaux « Kartenzahlung ab 10 € » (carte acceptée à partir de 10 €)."],
+          ["L'argent liquide", "Le paiement par carte a beaucoup progressé, mais certaines boulangeries, Spätis et petites échoppes — comme celle de Frau Yilmaz — n'acceptent encore que le liquide (« nur bar ») ou fixent un minimum pour la carte. Mieux vaut demander, comme Lukas."],
         ],
         prompt: ["Lukas rencontre Herr Krüger", "Écris un dialogue en allemand entre Lukas et Herr Krüger. Utilise « Sie » (vouvoiement), au moins un verbe de modalité et une question avec « Kennen Sie…? »."],
       },

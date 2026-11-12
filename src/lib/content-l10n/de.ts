@@ -33,7 +33,7 @@ export const de: ContentL10n = {
         vocab: ["hallo, hi (sehr umgangssprachlich)", "Kaffee mit cremig aufgeschäumter Milch", "der Chef, der Inhaber", "das Fenster", "warten (auf)"],
         expr: ["Das ist voll… / total… (locker, unter Freunden)", "Kurz gesagt / Na ja, jedenfalls", "Es ist viel los", "Küsschen (Abschied unter Freunden)"],
         grammar: [
-          ["Präsens + depuis (Dauer)", "Für eine Handlung, die in der Vergangenheit begonnen hat und noch andauert, nimmt das Französische wie das Deutsche das Präsens + depuis: « il attend depuis des années » = er wartet seit Jahren."],
+          ["Präsens + depuis × il y a + Dauer", "Präsens + depuis beschreibt eine Handlung, die in der Vergangenheit begonnen hat und noch andauert: « il attend depuis des années » = er wartet seit Jahren. Il y a + Dauer mit einer Vergangenheitsform (passé composé) sagt, wie lange ein abgeschlossenes Ereignis her ist: « j'ai trouvé la lettre il y a deux jours » = ich habe den Brief vor zwei Tagen gefunden. Beides ist nicht austauschbar."],
           ["Nahe Zukunft und Vorschläge", "Gesprochen dient das Präsens oft für Vorschläge: « Samedi, tu passes au café ? ». Man kann auch aller + Infinitiv verwenden: « On va aller au marché »."],
         ],
         culture: [
@@ -53,7 +53,7 @@ export const de: ContentL10n = {
         ],
         culture: [
           ["Straßenmärkte", "Paris hat über 70 Lebensmittelmärkte. Samstags auf den Markt zu gehen ist ein Ritual: mit den Händlern plaudern, Käse probieren, Obst der Saison aussuchen."],
-          ["Zuerst grüßen", "In Frankreich gilt es als unhöflich, einen Händler anzusprechen, ohne « Bonjour » zu sagen. Erst der Gruß, dann die Bitte."],
+          ["Zuerst grüßen", "In französischen Läden, an Marktständen und in Cafés — wie auf dem Markt in der Rue Lepic — erwartet man vor jeder Bitte ein « Bonjour »; ohne Gruß wirkt man schnell schroff. Deshalb grüßt Camille Madame Leroux, bevor sie vom Brief erzählt."],
         ],
         prompt: ["Und nach dem Markt?", "Schreib die Geschichte auf Französisch in der dritten Person weiter. Verwende mindestens zwei Verben im passé composé (mit avoir oder être). Bleib den Figuren treu."],
       },
@@ -82,7 +82,7 @@ export const de: ContentL10n = {
         ],
         culture: [
           ["Der Mauerpark", "Der Park liegt auf dem ehemaligen Grenzstreifen der Berliner Mauer. Sonntags gibt es hier einen großen Flohmarkt und Karaoke unter freiem Himmel."],
-          ["Sonntagsruhe", "Die meisten Geschäfte sind sonntags geschlossen (Ladenschluss). Flohmärkte, Parks und Cafés sind deshalb voll — und eingekauft wird am Samstag."],
+          ["Sonntagsruhe", "Bundesweit sind die meisten Geschäfte sonntags geschlossen; die genauen Regeln legt jedes Land fest (in Berlin das Ladenöffnungsgesetz). Bäckereien, Bahnhofsläden und Spätis haben oft offen. Deshalb sind an einem Sonntag wie dem von Lukas Flohmärkte und Parks voll."],
         ],
         prompt: ["Das Foto beschreiben", "Beschreib die Szene auf Deutsch. Verwende „Auf dem Foto sieht man…“ und achte auf das Verb an zweiter Stelle. Du darfst Details erfinden."],
       },
@@ -97,7 +97,7 @@ export const de: ContentL10n = {
         ],
         culture: [
           ["Brötchen, Schrippe, Semmel", "Das Brötchen hat regionale Namen: Schrippe in Berlin, Semmel in Bayern und Österreich, Brötchen allgemein. Frühstück mit frischen Brötchen ist eine starke Tradition."],
-          ["Bargeld", "Viele kleine Läden bevorzugen noch Bargeld („nur bar“). Schilder wie „Kartenzahlung ab 10 €“ sind verbreitet."],
+          ["Bargeld", "Kartenzahlung ist viel verbreiteter geworden, aber manche Bäckereien, Spätis und kleine Stände — wie der von Frau Yilmaz — nehmen noch „nur bar“ oder verlangen einen Mindestbetrag für Karten. Fragen lohnt sich, wie Lukas es tut."],
         ],
         prompt: ["Lukas trifft Herrn Krüger", "Schreib einen Dialog auf Deutsch zwischen Lukas und Herrn Krüger. Verwende „Sie“ (förmlich), mindestens ein Modalverb und eine Frage mit „Kennen Sie…?“."],
       },

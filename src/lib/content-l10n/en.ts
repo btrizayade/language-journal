@@ -33,7 +33,7 @@ export const en: ContentL10n = {
         vocab: ["hi (very informal)", "coffee with creamy steamed milk", "the owner / the boss", "the window", "to wait (for)"],
         expr: ["It's so… (informal, among friends)", "Anyway / long story short", "It's busy / there are lots of people", "Kisses (a goodbye between friends)"],
         grammar: [
-          ["Present tense + depuis (duration)", "For an action that started in the past and is still going on, French uses the present tense + depuis: « il attend depuis des années » = he has been waiting for years."],
+          ["Present tense + depuis × il y a + duration", "Present + depuis describes an action that started in the past and is still going on: « il attend depuis des années » = he has been waiting for years. Il y a + duration, with a past tense (passé composé), says how long ago a finished event happened: « j'ai trouvé la lettre il y a deux jours » = I found the letter two days ago. The two are not interchangeable."],
           ["Near future and suggestions", "In speech, the present tense is used to suggest plans: « Samedi, tu passes au café ? ». You can also use aller + infinitive: « On va aller au marché »."],
         ],
         culture: [
@@ -53,7 +53,7 @@ export const en: ContentL10n = {
         ],
         culture: [
           ["Street markets", "Paris has more than 70 food markets. Going to the market on Saturday is a ritual: chatting with stallholders, tasting cheese, choosing seasonal fruit."],
-          ["Greet first, always", "In France, starting a conversation with a shopkeeper without saying « Bonjour » is considered rude. Greeting first, request second."],
+          ["Greet first", "In French shops, stalls and cafés — like the Rue Lepic market — a « Bonjour » is expected before any request; skipping it tends to sound abrupt. That is why Camille greets Madame Leroux before mentioning the letter."],
         ],
         prompt: ["After the market", "Continue the story in French, in the third person. Use at least two verbs in the passé composé (with avoir or être). Keep the characters consistent."],
       },
@@ -82,7 +82,7 @@ export const en: ContentL10n = {
         ],
         culture: [
           ["The Mauerpark", "The park lies where the border strip of the Berlin Wall once ran. Today it hosts a large flea market and open-air karaoke on Sundays."],
-          ["Sunday as a day of rest", "In Germany most shops close on Sundays (Ladenschluss). So flea markets, parks and cafés fill up — and grocery shopping has to be done on Saturday."],
+          ["Sunday as a day of rest", "Across Germany most shops close on Sundays; exact rules are set by each state (in Berlin, the Ladenöffnungsgesetz). Bakeries, station shops and Spätis often open. That is why, on a Sunday like Lukas's, flea markets and parks fill up."],
         ],
         prompt: ["Describing the photograph", "Describe the scene in German. Use « Auf dem Foto sieht man… » and pay attention to the verb in second position. You may invent details."],
       },
@@ -97,7 +97,7 @@ export const en: ContentL10n = {
         ],
         culture: [
           ["Brötchen, Schrippe, Semmel", "The bread roll has regional names: Schrippe in Berlin, Semmel in Bavaria and Austria, Brötchen in general use. Breakfast with fresh rolls is a strong tradition."],
-          ["Paying in cash", "Many small German shops still prefer cash (« nur bar »). Signs saying « Kartenzahlung ab 10 € » (card payments from €10) are common."],
+          ["Paying in cash", "Card payment has grown a lot, but some bakeries, Spätis and small stalls — like Frau Yilmaz's — still take cash only (« nur bar ») or set a minimum for cards. It's worth asking first, as Lukas does."],
         ],
         prompt: ["Lukas meets Herr Krüger", "Write a dialogue in German between Lukas and Herr Krüger. Use « Sie » (formal), at least one modal verb and a question with « Kennen Sie…? »."],
       },

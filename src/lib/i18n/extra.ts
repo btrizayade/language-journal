@@ -101,6 +101,18 @@ const rows = {
   "vocab.updated": ["Palavra atualizada.", "Word updated.", "Mot mis à jour.", "Wort aktualisiert.", "Palabra actualizada."],
   "vocab.deleted": ["Palavra removida do caderno.", "Word removed from the notebook.", "Mot retiré du carnet.", "Wort aus dem Heft entfernt.", "Palabra quitada del cuaderno."],
   "vocab.confirmDelete": ["Remover “{term}” do caderno?", "Remove “{term}” from the notebook?", "Retirer « {term} » du carnet ?", "„{term}“ aus dem Heft entfernen?", "¿Quitar «{term}» del cuaderno?"],
+  "status.notStarted": ["Não iniciado", "Not started", "Pas commencé", "Nicht begonnen", "Sin empezar"],
+  "status.inProgress": ["Em andamento", "In progress", "En cours", "In Arbeit", "En curso"],
+  "status.writingPending": ["Escrita pendente", "Writing pending", "Écriture en attente", "Schreiben offen", "Escritura pendiente"],
+  "status.completed": ["Concluído", "Completed", "Terminé", "Abgeschlossen", "Completado"],
+  "studio.complete": ["Concluir episódio", "Complete episode", "Terminer l'épisode", "Folge abschließen", "Completar episodio"],
+  "studio.completeHint": ["Salvar rascunho não conclui o episódio. Ao concluir, a entrada vai para o diário e o episódio fica marcado como concluído.", "Saving a draft doesn't complete the episode. Completing stores the entry in your journal and marks the episode as completed.", "Enregistrer un brouillon ne termine pas l'épisode. Terminer range l'entrée dans le journal et marque l'épisode comme terminé.", "Ein Entwurf schließt die Folge nicht ab. Beim Abschließen kommt der Eintrag ins Tagebuch und die Folge gilt als abgeschlossen.", "Guardar un borrador no completa el episodio. Al completar, la entrada pasa al diario y el episodio queda completado."],
+  "studio.lastSaved": ["Salvo às {time}", "Saved at {time}", "Enregistré à {time}", "Gespeichert um {time}", "Guardado a las {time}"],
+  "studio.range": ["Sugestão: {min}–{max} palavras", "Suggested: {min}–{max} words", "Suggestion : {min}–{max} mots", "Vorschlag: {min}–{max} Wörter", "Sugerencia: {min}–{max} palabras"],
+  "media.play": ["Reproduzir", "Play", "Lire", "Abspielen", "Reproducir"],
+  "media.pause": ["Pausar", "Pause", "Pause", "Pause", "Pausar"],
+  "media.seek": ["Posição da reprodução", "Playback position", "Position de lecture", "Wiedergabeposition", "Posición de reproducción"],
+  "media.unavailable": ["A mídia deste episódio ainda não está disponível. Acompanhe pela transcrição no idioma original.", "This episode's media isn't available yet. Follow along with the original-language transcript.", "Le média de cet épisode n'est pas encore disponible. Suivez la transcription en langue originale.", "Die Medien dieser Folge sind noch nicht verfügbar. Folge dem Transkript in der Originalsprache.", "El contenido multimedia de este episodio aún no está disponible. Sigue la transcripción en el idioma original."],
 } as const satisfies Record<string, readonly [string, string, string, string, string]>;
 
 export type ExtraKey = keyof typeof rows;

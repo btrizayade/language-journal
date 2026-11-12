@@ -33,6 +33,7 @@ export interface Episode {
   minutes: number;
   format: Format;
   mediaUrl?: string;
+  subtitlesUrl?: string; // WebVTT, original language
   documentLabel?: string;
   body?: string[];
   transcript?: { speaker: string; line: string }[];
@@ -172,9 +173,9 @@ export const journals: Journal[] = [
         ],
         grammar: [
           {
-            title: "Il y a + duração (depuis)",
-            explanation: "Para uma ação que começou no passado e continua, o francês usa o presente + depuis: « il attend depuis des années » = ele espera há anos.",
-            examples: ["J'habite à Paris depuis trois ans.", "Il attend quelqu'un depuis des années."],
+            title: "Presente + depuis × il y a + duração",
+            explanation: "Presente + depuis indica uma ação que começou no passado e continua agora: « il attend depuis des années » = ele espera há anos (e ainda espera). Já il y a + duração, com um verbo no passado (passé composé), diz há quanto tempo um fato terminado aconteceu: « j'ai trouvé la lettre il y a deux jours » = encontrei a carta há dois dias. Em português os dois viram « há », mas em francês não se trocam.",
+            examples: ["J'habite à Paris depuis trois ans.", "Il attend quelqu'un depuis des années.", "J'ai trouvé la lettre il y a deux jours."],
           },
           {
             title: "Futuro próximo e propostas",
@@ -238,7 +239,7 @@ export const journals: Journal[] = [
         ],
         culture: [
           { title: "Os mercados de rua", text: "Paris tem mais de 70 mercados alimentares. Ir à feira no sábado é um ritual: conversar com os vendedores, provar queijos, escolher frutas da estação." },
-          { title: "Cumprimentar antes de tudo", text: "Na França, entrar numa conversa com um comerciante sem dizer « Bonjour » é considerado rude. Primeiro a saudação, depois o pedido." },
+          { title: "Cumprimentar antes de tudo", text: "Em lojas, bancas e cafés franceses — como na feira da Rue Lepic — espera-se um « Bonjour » antes de qualquer pedido; pular a saudação costuma soar brusco. Por isso Camille cumprimenta Madame Leroux antes de falar da carta." },
         ],
         prompt: {
           type: "continuacao",
@@ -315,7 +316,7 @@ export const journals: Journal[] = [
         ],
         culture: [
           { title: "O Mauerpark", text: "O parque fica onde passava a faixa da fronteira do Muro de Berlim. Hoje, aos domingos, recebe um grande mercado de pulgas e karaokê ao ar livre." },
-          { title: "Domingo de descanso", text: "Na Alemanha, a maioria das lojas fecha aos domingos (Ladenschluss). Por isso, mercados de pulgas, parques e cafés ficam cheios — e é preciso fazer compras no sábado." },
+          { title: "Domingo de descanso", text: "Em toda a Alemanha, a maioria das lojas fecha aos domingos; os horários exatos são definidos por cada estado (em Berlim, pelo Ladenöffnungsgesetz). Padarias, lojas de estação e os Spätis costumam abrir. Por isso, num domingo como o de Lukas, mercados de pulgas e parques ficam cheios." },
         ],
         prompt: {
           type: "descricao",
@@ -369,7 +370,7 @@ export const journals: Journal[] = [
         ],
         culture: [
           { title: "Brötchen, Schrippe, Semmel", text: "O pãozinho tem nomes regionais: Schrippe em Berlim, Semmel na Baviera e na Áustria, Brötchen no uso geral. O café da manhã com pão fresco é uma tradição forte." },
-          { title: "Dinheiro em espécie", text: "Muitos pequenos comércios alemães ainda preferem dinheiro (« nur bar »). É comum ver placas de « Kartenzahlung ab 10 €»." },
+          { title: "Dinheiro em espécie", text: "O pagamento com cartão cresceu muito, mas algumas padarias, Spätis e bancas pequenas — como a de Frau Yilmaz — ainda aceitam só dinheiro (« nur bar ») ou pedem um valor mínimo para cartão. Vale perguntar antes, como Lukas faz." },
         ],
         prompt: {
           type: "dialogo",
@@ -421,7 +422,7 @@ export const journals: Journal[] = [
         ],
         culture: [
           { title: "Kaffee und Kuchen", text: "Por volta das 15h, especialmente nos fins de semana, muitas famílias alemãs se reúnem para café e bolo caseiro. Convidar alguém para isso é um gesto de confiança." },
-          { title: "Pontualidade", text: "Chegar na hora é sinal de respeito. Atrasos de mais de cinco minutos costumam ser avisados com antecedência." },
+          { title: "Pontualidade", text: "Em compromissos combinados, como o convite de Herr Krüger, chegar na hora é visto como respeito, sobretudo com pessoas mais velhas ou em situações formais. Se for atrasar, é comum avisar antes. Entre amigos jovens, a regra costuma ser mais flexível." },
           { title: "Prenzlauer Berg depois de 1989", text: "O bairro, na antiga Berlim Oriental, passou por grande renovação após a reunificação. Muitos moradores antigos saíram com o aumento dos aluguéis — tema frequente de debate na cidade." },
         ],
         prompt: {

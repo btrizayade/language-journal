@@ -60,3 +60,16 @@ describe("autosave and passages", () => {
     expect(b.state.passages).toHaveLength(1);
   });
 });
+
+import { episodeStatus as st, type State } from "./store";
+describe("episode status", () => {
+  it("opening alone is in progress, a draft is writing pending, a final entry completes", () => {
+    let s: State = { ...empty, opened: { j: ["e"] } };
+    expect(st(empty, "j", "e")).toBe("notStarted");
+    expect(st(s, "j", "e")).toBe("inProgress");
+    s = saveEntry(s, "j", "e", "Bonjour", "draft").state;
+    expect(st(s, "j", "e")).toBe("writingPending");
+    s = saveEntry(s, "j", "e", "Bonjour", "complete", s.entries[0]!.id).state;
+    expect(st(s, "j", "e")).toBe("completed");
+  });
+});

@@ -70,18 +70,20 @@ export function WritingStudio({ journal, episode, entry, explLang = "pt-BR" }: {
       )}
       <label htmlFor={`editor-${episode.id}`} className="sr-only">{t("studio.editorLabel", { lang })}</label>
       <textarea id={`editor-${episode.id}`} lang={journal.languageCode} value={text} onChange={(e) => { typed.current = true; setText(e.target.value); }}
-        spellCheck rows={12} placeholder={t("studio.placeholder")}
-        className="block w-full resize-y bg-transparent p-6 md:p-8 font-serif text-xl leading-[1.8] outline-none focus-visible:bg-muted/40 placeholder:text-muted-foreground/70" />
+        spellCheck rows={16} placeholder={t("studio.placeholder")}
+        className="block w-full min-h-[24rem] resize-y bg-transparent p-6 md:p-8 font-serif text-xl leading-[1.8] outline-none focus-visible:bg-muted/40 placeholder:text-muted-foreground/70" />
       <div className="flex flex-wrap items-center justify-between gap-3 border-t p-4 md:px-8">
         <div className="text-sm text-muted-foreground">
           <p aria-live="polite">
             {t("common.words", { n: words })} {words >= min && words <= max ? `· ${t("studio.within")}` : words > max ? `· ${t("studio.above")}` : words > 0 ? `· ${t("studio.toGo", { n: min - words })}` : ""}
           </p>
-          <p className="text-xs" aria-live="polite">{autoState === "saving" ? t("studio.autosaving") : autoState === "saved" ? t("studio.autosaved") : current ? (current.status === "complete" ? t("entries.complete") : t("entries.draft")) : ""}</p>
+          <p className="text-xs" aria-live="polite">{autoState === "saving" ? t("studio.autosaving") : autoState === "saved" ? t("studio.autosaved") : current ? `${current.status === "complete" ? t("entries.complete") : t("entries.draft")} · ${t("studio.lastSaved", { time: new Date(current.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) })}` : ""}</p>
+          <p className="text-xs">{t("studio.range", { min, max })}</p>
         </div>
+        <p className="basis-full text-xs text-muted-foreground md:order-last">{t("studio.completeHint")}</p>
         <div className="flex flex-wrap gap-2">
           <button onClick={() => save("draft")} className="rounded-full border px-5 py-2 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">{t("studio.saveDraft")}</button>
-          <button onClick={() => save("complete")} className="rounded-full bg-primary px-5 py-2 text-primary-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">{t("studio.saveJournal")}</button>
+          <button onClick={() => save("complete")} className="rounded-full bg-primary px-5 py-2 text-primary-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">{t("studio.complete")}</button>
         </div>
       </div>
     </div>

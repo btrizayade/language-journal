@@ -7,6 +7,7 @@ import { getJournal, getEpisode, type Episode, type Journal } from "@/lib/conten
 import { useI18n } from "@/lib/i18n";
 import { useStore, markOpened, toggleVocab, vocabKey, toggleBookmark, epKey, addPassage } from "@/lib/store";
 import { useLocalizedJournal } from "@/lib/content-l10n";
+import { AudioPlayer, VideoPlayer } from "@/components/MediaPlayer";
 import { WritingStudio } from "@/components/WritingStudio";
 
 export const Route = createFileRoute("/episodio/$journalId/$episodeId")({
@@ -179,8 +180,6 @@ function Transcript({ journal, episode }: { journal: Journal; episode: Episode }
 function Media({ journal, episode }: { journal: Journal; episode: Episode }) {
   const { t } = useI18n();
   const r = useReading();
-  const media = useRef<HTMLMediaElement>(null);
-  useEffect(() => { if (media.current) media.current.playbackRate = r.speed; }, [r.speed]);
   if (episode.format === "reading") {
     return (
       <div className="rounded-sm border bg-card px-6 py-10 md:px-14 md:py-14 shadow-[var(--shadow-book)]">
@@ -195,22 +194,15 @@ function Media({ journal, episode }: { journal: Journal; episode: Episode }) {
   return (
     <div>
       {episode.mediaUrl ? (
-        isAudio ? <audio ref={media as React.RefObject<HTMLAudioElement>} controls src={episode.mediaUrl} className="w-full" /> : <video ref={media as React.RefObject<HTMLVideoElement>} controls src={episode.mediaUrl} className="w-full rounded-lg" />
+        isAudio ? <AudioPlayer src={episode.mediaUrl} speed={r.speed} onSpeed={(v) => setReading({ speed: v })} />
+          : <VideoPlayer src={episode.mediaUrl} subtitles={episode.subtitlesUrl} lang={journal.languageCode} speed={r.speed} onSpeed={(v) => setReading({ speed: v })} />
       ) : (
-        <div role="note" className={`grid place-items-center rounded-lg border border-dashed text-center p-8 ${isAudio ? "bg-secondary min-h-40" : "bg-sage/30 aspect-video"}`}>
-          <div>
-            {isAudio ? <Headphones className="mx-auto size-8" aria-hidden /> : <Clapperboard className="mx-auto size-8" aria-hidden />}
-            <p className="mt-3 font-semibold">{isAudio ? t("episode.demoAudio") : t("episode.demoVideo")}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{t("episode.demoHint")}</p>
-          </div>
+        <div role="note" className="flex items-start gap-3 rounded-lg border border-dashed bg-muted/50 p-4 text-sm">
+          {isAudio ? <Headphones className="mt-0.5 size-5 shrink-0" aria-hidden /> : <Clapperboard className="mt-0.5 size-5 shrink-0" aria-hidden />}
+          <p>{t("media.unavailable")}</p>
         </div>
       )}
       <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-        <label className="flex items-center gap-2">{t("reading.speed")}
-          <select value={r.speed} onChange={(ev) => setReading({ speed: Number(ev.target.value) })} className="rounded-md border bg-card px-2 py-1">
-            {[0.75, 0.9, 1, 1.25, 1.5].map((v) => <option key={v} value={v}>{v}×</option>)}
-          </select>
-        </label>
         <button onClick={() => setReading({ transcript: !r.transcript })} aria-pressed={r.transcript} className="rounded-full border px-3 py-1 hover:bg-muted">{r.transcript ? t("reading.hideTranscript") : t("reading.showTranscript")}</button>
       </div>
       {r.transcript && <Transcript journal={journal} episode={episode} />}

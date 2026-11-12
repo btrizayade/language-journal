@@ -180,6 +180,15 @@ export function setGoal(journalId: string, episodeId: string, goal: [number, num
   set({ ...state, goals: goal ? { ...rest, [k]: goal } : rest });
 }
 
+export type EpisodeStatus = "notStarted" | "inProgress" | "writingPending" | "completed";
+/** Completed only when a final writing entry is saved; opening alone never completes an episode. */
+export function episodeStatus(s: State, journalId: string, episodeId: string): EpisodeStatus {
+  const es = s.entries.filter((e) => e.journalId === journalId && e.episodeId === episodeId);
+  if (es.some((e) => e.status === "complete")) return "completed";
+  if (es.length) return "writingPending";
+  if ((s.opened[journalId] ?? []).includes(episodeId)) return "inProgress";
+  return "notStarted";
+}
 export function completedEpisodes(s: State, journalId: string) {
   return new Set(s.entries.filter((e) => e.journalId === journalId && e.status === "complete").map((e) => e.episodeId));
 }

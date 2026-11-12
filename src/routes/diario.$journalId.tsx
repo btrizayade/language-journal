@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { getJournal } from "@/lib/content";
 import { useLocalizedJournal } from "@/lib/content-l10n";
 import { useI18n } from "@/lib/i18n";
-import { useStore, completedEpisodes } from "@/lib/store";
+import { useStore, completedEpisodes, episodeStatus } from "@/lib/store";
 import { ProgressBar } from "@/components/BookCard";
 import { Check } from "lucide-react";
 
@@ -32,7 +32,7 @@ function JournalPage() {
   const s = useStore();
   const { t, langName } = useI18n();
   const done = completedEpisodes(s, j.id);
-  const next = j.episodes.find((e) => !done.has(e.id)) ?? j.episodes[0]!;
+  const next = j.episodes.find((e) => episodeStatus(s, j.id, e.id) !== "completed") ?? j.episodes[0]!;
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
@@ -84,10 +84,13 @@ function JournalPage() {
                   <p className="font-serif text-muted-foreground">{e.intro}</p>
                 </div>
                 <span className="hidden sm:inline text-xs uppercase tracking-[0.15em] text-muted-foreground">{t(`format.${e.format}`)} · {e.minutes} min</span>
-                <span aria-label={done.has(e.id) ? t("journal.done") : t("journal.notDone")}
-                  className={`grid size-7 place-items-center rounded-full border ${done.has(e.id) ? "bg-sage border-sage" : ""}`}>
-                  {done.has(e.id) && <Check className="size-4" />}
-                </span>
+                {(() => { const st = episodeStatus(s, j.id, e.id); return (
+                  <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="hidden md:inline">{t(`status.${st}`)}</span>
+                    <span aria-label={t(`status.${st}`)} className={`grid size-7 place-items-center rounded-full border ${st === "completed" ? "bg-sage border-sage" : st === "writingPending" ? "border-lavender bg-secondary" : st === "inProgress" ? "border-lavender" : ""}`}>
+                      {st === "completed" ? <Check className="size-4" /> : st !== "notStarted" ? <span className="size-2 rounded-full bg-lavender" /> : null}
+                    </span>
+                  </span>); })()}
               </Link>
             </li>
           ))}
