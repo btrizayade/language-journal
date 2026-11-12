@@ -16,6 +16,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Toaster } from "@/components/ui/sonner";
 import { useI18n } from "@/lib/i18n";
 import { applyReading, setReading, useReading } from "@/lib/reading";
+import { startSync } from "@/lib/sync";
+import { MigrationDialog } from "@/components/MigrationDialog";
 
 function NotFoundComponent() {
   const { t } = useI18n();
@@ -131,6 +133,7 @@ function RootComponent() {
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
   const reading = useReading();
   useEffect(() => { applyReading(); }, [reading]);
+  useEffect(() => { startSync(); }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -140,6 +143,7 @@ function RootComponent() {
       <main id="conteudo"><Outlet /></main>
       <footer className="site-chrome mx-auto max-w-6xl px-6 py-12 text-sm text-muted-foreground border-t mt-20">{t("footer.tagline")}</footer>
       {reading.focus && <button onClick={() => setReading({ focus: false })} className="fixed right-4 top-4 z-50 rounded-full border bg-card px-4 py-2 text-sm shadow-[var(--shadow-book)] focus-visible:outline-2 focus-visible:outline-ring">{t("reading.exitFocus")}</button>}
+      <MigrationDialog />
       <Toaster />
     </QueryClientProvider>
   );

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { journals } from "@/lib/content";
 import { setReading, useReading, READING_DEFAULTS } from "@/lib/reading";
+import { AccountSection } from "@/components/AccountSection";
 import { LOCALES, setPrefs, translate, usePrefs, useI18n, type Locale } from "@/lib/i18n";
 
 export const Route = createFileRoute("/preferencias")({
@@ -33,6 +34,7 @@ function SettingsPage() {
     <div className="mx-auto max-w-3xl px-6 py-14">
       <h1 className="text-5xl">{t("settings.title")}</h1>
       <p className="mt-4 font-serif text-xl text-muted-foreground">{t("settings.intro")}</p>
+      <AccountSection />
 
       <div className="mt-10 divide-y rounded-xl border bg-card">
         <div className="p-6">

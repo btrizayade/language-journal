@@ -127,7 +127,7 @@ export const pt = {
   "settings.followInterface": "Igual ao idioma da interface",
   "settings.stories": "Idioma das histórias",
   "settings.storiesHint": "Definido por cada diário e nunca traduzido automaticamente.",
-  "settings.storage": "Suas preferências ficam guardadas neste navegador.",
+  "settings.storage": "Sem conta, suas preferências ficam neste navegador; com conta, acompanham você em todos os dispositivos.",
   "settings.saved": "Preferências atualizadas.",
 } as const;
 

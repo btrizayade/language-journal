@@ -34,7 +34,11 @@ function load() {
     if (raw) prefs = { interface: isLocale(raw.interface) ? raw.interface : DEFAULT_LOCALE, explanation: isLocale(raw.explanation) ? raw.explanation : null };
   } catch { /* ignore */ }
 }
-export function setPrefs(next: Partial<Prefs>) {
+const hooksPrefs = new Set<() => void>();
+export function onPrefsChange(fn: () => void) { hooksPrefs.add(fn); return () => { hooksPrefs.delete(fn); }; }
+export function getPrefs() { load(); return prefs; }
+export function setPrefs(next: Partial<Prefs>, silent = false) { setPrefsInner(next); if (!silent) hooksPrefs.forEach((h) => h()); }
+function setPrefsInner(next: Partial<Prefs>) {
   load();
   prefs = { ...prefs, ...next };
   try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch { /* ignore */ }

@@ -22,7 +22,11 @@ function load() {
   loaded = true;
   try { const r = JSON.parse(localStorage.getItem(KEY) ?? "null"); if (r) prefs = { ...READING_DEFAULTS, ...r }; } catch { /* ignore */ }
 }
-export function setReading(next: Partial<ReadingPrefs>) {
+const hooksReading = new Set<() => void>();
+export function onReadingChange(fn: () => void) { hooksReading.add(fn); return () => { hooksReading.delete(fn); }; }
+export function getReading() { load(); return prefs; }
+export function setReading(next: Partial<ReadingPrefs>, silent = false) { setReadingInner(next); if (!silent) hooksReading.forEach((h) => h()); }
+function setReadingInner(next: Partial<ReadingPrefs>) {
   load();
   prefs = { ...prefs, ...next };
   try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch { /* ignore */ }

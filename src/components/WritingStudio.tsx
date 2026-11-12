@@ -3,9 +3,12 @@ import { toast } from "sonner";
 import { countWords, type Episode, type Journal } from "@/lib/content";
 import { autosave, epKey, persistEntry, setGoal, useStore, type Entry } from "@/lib/store";
 import { useI18n } from "@/lib/i18n";
+import { Link } from "@tanstack/react-router";
+import { useSync } from "@/lib/sync";
 
 export function WritingStudio({ journal, episode, entry, explLang = "pt-BR" }: { journal: Journal; episode: Episode; entry?: Entry | undefined; explLang?: string }) {
   const { t, langName } = useI18n();
+  const { user, ready } = useSync();
   const s = useStore();
   const pending = entry ? s.pending[entry.id] : undefined;
   const [text, setText] = useState(pending?.content ?? entry?.content ?? "");
@@ -81,6 +84,7 @@ export function WritingStudio({ journal, episode, entry, explLang = "pt-BR" }: {
           <p className="text-xs">{t("studio.range", { min, max })}</p>
         </div>
         <p className="basis-full text-xs text-muted-foreground md:order-last">{t("studio.completeHint")}</p>
+        {ready && !user && <p className="basis-full text-xs text-muted-foreground md:order-last"><Link to="/entrar" className="underline">{t("guest.nudge")}</Link></p>}
         <div className="flex flex-wrap gap-2">
           <button onClick={() => save("draft")} className="rounded-full border px-5 py-2 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">{t("studio.saveDraft")}</button>
           <button onClick={() => save("complete")} className="rounded-full bg-primary px-5 py-2 text-primary-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">{t("studio.complete")}</button>

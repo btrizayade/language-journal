@@ -35,7 +35,8 @@ export interface State {
   lastEpisode?: { journalId: string; episodeId: string; at: string };
 }
 
-const KEY = "language-journal:v1";
+export const GUEST_KEY = "language-journal:v1";
+let KEY = GUEST_KEY;
 export const emptyState: State = { entries: [], vocab: [], passages: [], bookmarks: {}, pending: {}, goals: {}, opened: {}, lastVisit: {} };
 const empty = emptyState;
 let state: State = empty;
@@ -50,11 +51,30 @@ function load() {
     if (raw) { const r = JSON.parse(raw); state = { ...empty, ...r, vocab: dedupeVocab((r.vocab ?? []).map(normalizeVocab)) }; }
   } catch { /* ignore */ }
 }
+const changeHooks = new Set<(prev: State, next: State) => void>();
+/** Lets the cloud sync see every local change. */
+export function onStoreChange(fn: (prev: State, next: State) => void) { changeHooks.add(fn); return () => { changeHooks.delete(fn); }; }
 function set(next: State) {
+  const prev = state;
   state = next;
   try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
   listeners.forEach((l) => l());
+  changeHooks.forEach((h) => h(prev, next));
 }
+export const normalizeState = (r: Partial<State>): State => ({ ...empty, ...r, vocab: dedupeVocab((r.vocab ?? []).map(normalizeVocab)) });
+/** Reads a saved state without making it current (used to detect guest data before migration). */
+export function readSaved(key: string): State | null {
+  try { const raw = localStorage.getItem(key); return raw ? normalizeState(JSON.parse(raw)) : null; } catch { return null; }
+}
+export const getState = () => { load(); return state; };
+/** Switches the active data (guest ↔ account). Does not trigger sync hooks. */
+export function swapState(next: State, key: string) {
+  load();
+  KEY = key; state = next;
+  try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
+  listeners.forEach((l) => l());
+}
+export const hasData = (s: State | null) => !!s && (s.entries.length + s.vocab.length + s.passages.length + Object.keys(s.bookmarks).length + Object.keys(s.opened).length) > 0;
 
 export function useStore(): State {
   return useSyncExternalStore(
