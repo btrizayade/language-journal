@@ -1,5 +1,10 @@
 # Full-page illustrated expansion
 
+# Homepage illustration quality
+
+- [x] Inspect the complete original and refined artwork; correct four readers' hand/book connections, limbs and seating details while preserving original art outside localized edits.
+- [x] Verify refined homepage artwork at five desktop, tablet and mobile sizes, including uncropped aspect ratio and no runtime errors. Existing desktop text placement still touches ornaments; left unchanged to avoid redesigning the page.
+
 # Final stability and data integrity pass
 
 - [x] Scope editors and flush captured edits safely on navigation, unmount and visibility changes.

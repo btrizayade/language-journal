@@ -6,7 +6,7 @@ import { ContinueLearning } from "@/components/ContinueLearning";
 import { BookCard } from "@/components/BookCard";
 import { useI18n } from "@/lib/i18n";
 import { StampBadge } from "@/components/ui/scrapbook";
-import libraryHero from "@/assets/library-panorama.jpg";
+import libraryHero from "@/assets/library-panorama-refined.png";
 import { Decoration, SparkleField } from "@/components/decorations/Decoration";
 import { useInteractiveScene, Reveal } from "@/components/interactions";
 import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
@@ -37,7 +37,7 @@ function Library() {
   return (
     <div>
       <section ref={scene} className="library-scene relative isolate overflow-clip">
-        <img src={libraryHero} alt="" aria-hidden="true" width={1920} height={960} fetchPriority="high"
+        <img src={libraryHero} alt="" aria-hidden="true" width={1920} height={1024} fetchPriority="high"
           className="library-scene-art pointer-events-none absolute inset-0 h-full w-full" />
         <div data-depth="1" className="absolute inset-0 pointer-events-none"><SparkleField className="hidden md:block" sparkles={[
           { top: "12%", left: "58%", size: 22, delay: 0 }, { top: "30%", left: "92%", size: 16, delay: 1.1 },

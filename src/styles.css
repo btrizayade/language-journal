@@ -259,7 +259,7 @@
 @keyframes magic-shimmer { 0%,80%,100% { opacity: 0; transform: translateX(-60%) skewX(-18deg); } 90% { opacity: .5; transform: translateX(60%) skewX(-18deg); } }
 .magic-layer { pointer-events: none; user-select: none; }
 .magic-paused, .magic-paused * { animation-play-state: paused !important; }
-.library-scene { min-height: clamp(560px, 82svh, 850px); background: var(--background); }
+.library-scene { min-height: 0; aspect-ratio: 1920 / 1024; background: var(--background); }
 .library-scene-art { object-fit: cover; object-position: center; }
 .library-scene::after { content: ""; position: absolute; inset: auto 0 0; height: 48px; pointer-events: none; background: linear-gradient(transparent, var(--background)); }
 .library-scene-copy { width: 19%; max-width: 290px; margin-left: 10.5%; padding-top: clamp(140px, 18svh, 165px); padding-bottom: 80px; }
@@ -268,7 +268,7 @@
 .dark .library-scene-copy { --foreground: var(--plum); --muted-foreground: var(--cocoa); color: var(--foreground); }
 .focus-mode .magic-layer, .focus-mode .illustrated-boundary { display: none; }
 @media (max-width: 1279px) {
-  .library-scene { min-height: 0; }
+  .library-scene { min-height: 0; aspect-ratio: auto; }
   .library-scene-art { position: relative; height: auto; width: 100%; }
   .library-scene-copy { width: auto; max-width: 36rem; margin: 0 auto; padding: 24px 24px 20px; }
   .library-scene-copy h1 { font-size: 2rem; }
