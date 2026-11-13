@@ -45,3 +45,4 @@ use the editor.
 - Learning objectives and comprehension answer keys are predefined in src/lib/learning.ts; localized explanations use five-locale tuples so story text stays in its target language.
 - Episode completion and assessment histories use separate user_state JSON fields mirrored by store/sync/merge; saving writing cannot implicitly complete a lesson, and legacy completion is backfilled without losing prior progress.
 - Onboarding dismissal uses existing synced preferences; generated static recordings use CDN asset pointers referenced by predefined episode content, with measured durations rather than invented media URLs.
+- Silent episode illustrations use video-only stream-copy CDN assets and the existing VideoPlayer with enforced muting and audio-free controls, preventing embedded audio from being exposed.

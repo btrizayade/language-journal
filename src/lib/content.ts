@@ -2,6 +2,8 @@ import camilleCover from "@/assets/cover-camille.jpg";
 import lukasCover from "@/assets/cover-lukas.jpg";
 import inesRecording from "@/assets/media/message-ines.mp3.asset.json";
 import kruegerRecording from "@/assets/media/herr-krueger.mp3.asset.json";
+import marcheVideo from "@/assets/media/samedi-au-marche.mp4.asset.json";
+import bakeryVideo from "@/assets/media/in-der-baeckerei.mp4.asset.json";
 
 export type Format = "reading" | "listening" | "watching";
 export type ActivityType =
@@ -36,6 +38,7 @@ export interface Episode {
   format: Format;
   mediaUrl?: string;
   mediaSeconds?: number;
+  silentVideo?: boolean;
   subtitlesUrl?: string; // WebVTT, original language
   documentLabel?: string;
   body?: string[];
@@ -204,6 +207,9 @@ export const journals: Journal[] = [
         id: "marche-lepic",
         number: 3,
         title: "Samedi au marché",
+        mediaUrl: marcheVideo.url,
+        mediaSeconds: 10,
+        silentVideo: true,
         intro: "No mercado da Rue Lepic, Madame Leroux reconhece um nome.",
         context: "Sábado de manhã. Camille e Inès atravessam o mercado entre queijos, frutas e flores até a banca de Madame Leroux.",
         minutes: 8,
@@ -335,6 +341,9 @@ export const journals: Journal[] = [
         id: "in-der-baeckerei",
         number: 2,
         title: "In der Bäckerei",
+        mediaUrl: bakeryVideo.url,
+        mediaSeconds: 9.916667,
+        silentVideo: true,
         intro: "Lukas entra na padaria com a foto no bolso.",
         context: "Segunda-feira, 7h30. Antes da aula, Lukas visita a padaria da Kastanienallee. Frau Yilmaz está atrás do balcão.",
         minutes: 9,

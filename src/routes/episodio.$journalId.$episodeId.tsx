@@ -214,7 +214,7 @@ function Media({ journal, episode }: { journal: Journal; episode: Episode }) {
     <div>
       {episode.mediaUrl ? (
         isAudio ? <AudioPlayer src={episode.mediaUrl} speed={r.speed} onSpeed={(v) => setReading({ speed: v })} />
-          : <VideoPlayer src={episode.mediaUrl} subtitles={episode.subtitlesUrl} lang={journal.languageCode} speed={r.speed} onSpeed={(v) => setReading({ speed: v })} />
+          : <VideoPlayer src={episode.mediaUrl} subtitles={episode.subtitlesUrl} lang={journal.languageCode} speed={r.speed} onSpeed={(v) => setReading({ speed: v })} silent={episode.silentVideo === true} />
       ) : (
         <div role="note" className="flex items-start gap-3 rounded-lg border border-dashed bg-muted/50 p-4 text-sm">
           {isAudio ? <Headphones className="mt-0.5 size-5 shrink-0" aria-hidden /> : <Clapperboard className="mt-0.5 size-5 shrink-0" aria-hidden />}

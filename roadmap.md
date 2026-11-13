@@ -18,7 +18,8 @@
 - [x] Add contextual, dismissible first-time guidance and actionable empty states.
 - [x] Generate and verify French and German audio playback, seeking and speed using real CDN-hosted recordings.
 - [x] Verify guest and authenticated writing/assessment flows, cloud read-back, desktop/mobile layout and regression tests.
-- [ ] Original video scenes, subtitles and synchronized sentence transcripts remain for the next media delivery; no video assets or reliable sentence timestamps have been produced yet.
+- [x] Integrate the two supplied silent visual illustrations as video-only CDN assets with measured durations and audio-free playback controls.
+- [ ] Subtitles and synchronized sentence transcripts await reliable supplied timestamps; silent illustrations do not introduce new dialogue or audio.
 - [ ] Complete detailed vocabulary morphology/CEFR review and full five-language screen inspection in the next pedagogical delivery.
 
 - [x] Expand the library scene across a full-width, substantial first screen.
