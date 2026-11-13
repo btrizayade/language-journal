@@ -54,7 +54,6 @@ function Library() {
         <Decoration depth={1} asset="dustCluster" size={56} pos={{ top: "45%", right: "18%" }} motion="twinkle" duration={7} delay={2} className="hidden md:block" />
         <Decoration depth={3} asset="starEight" size={22} pos={{ bottom: "14%", right: "34%" }} motion="none" className="hidden md:block" />
         <div className="library-scene-copy relative z-[1]" data-no-trail>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("library.kicker")}</p>
           <h1 className="mt-3 leading-[1.1]">Language Journal</h1>
           <p className="mt-4 font-display text-xl leading-snug">{t("library.title1")} <em className="text-sage-deep">{t("library.title2")}</em></p>
           <p className="mt-5 font-serif text-lg leading-relaxed text-muted-foreground">{t("library.intro")}</p>
