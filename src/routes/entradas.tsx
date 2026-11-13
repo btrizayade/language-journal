@@ -6,6 +6,7 @@ import { useStore, type Entry } from "@/lib/store";
 import { WritingStudio } from "@/components/WritingStudio";
 import { Decoration } from "@/components/decorations/Decoration";
 import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/entradas")({
   head: () => ({
@@ -90,9 +91,12 @@ function EntriesPage() {
 
       {list.length === 0 ? (
         <div className="mt-16 rounded-xl border border-dashed p-12 text-center">
-          <p className="font-display text-2xl">{t("entries.emptyTitle")}</p>
-          <p className="mt-2 text-muted-foreground">{t("entries.emptyBody")}</p>
-          <Link to="/" className="mt-6 inline-flex rounded-full bg-primary px-5 py-2 text-primary-foreground">{t("entries.goLibrary")}</Link>
+          {s.entries.length ? <><p className="font-display text-2xl">{t("vocab.noMatch")}</p><Button className="mt-4" variant="outline" onClick={() => { setJournal("all"); setLang("all"); setPeriod("all"); }}>{t("empty.filters")}</Button></> : <>
+            <p className="font-display text-2xl">{t("entries.emptyTitle")}</p>
+            <p className="mt-2 text-muted-foreground">{t("entries.emptyBody")}</p>
+            <p className="mt-6 text-xs text-muted-foreground">{t("empty.example")}</p><blockquote lang="fr" className="mt-2 font-serif text-xl italic">Ce soir, je pense à la lettre. Je suis curieuse, mais je ne connais pas Hélène.</blockquote>
+            <Button asChild className="mt-6 h-auto min-h-10 whitespace-normal"><Link to="/episodio/$journalId/$episodeId" params={{ journalId: "les-jours-de-camille", episodeId: "la-lettre" }} hash="escrever">{t("onboard.start")}</Link></Button>
+          </>}
         </div>
       ) : (
         <ul className="mt-10 space-y-4">

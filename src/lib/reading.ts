@@ -10,7 +10,7 @@ export interface ReadingPrefs {
   speed: number; // audio/video playback rate
   transcript: boolean;
 }
-export const READING_DEFAULTS: ReadingPrefs = { fontSize: 1.3, lineHeight: 1.85, width: "medium", focus: false, contrast: false, theme: "light", speed: 1, transcript: true };
+export const READING_DEFAULTS: ReadingPrefs = { fontSize: 1.3, lineHeight: 1.85, width: "medium", focus: false, contrast: false, theme: "light", speed: 1, transcript: false };
 export const WIDTHS = { narrow: "34rem", medium: "42rem", wide: "52rem" } as const;
 const KEY = "language-journal:reading";
 let prefs = READING_DEFAULTS;

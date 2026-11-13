@@ -18,7 +18,7 @@ export type Locale = (typeof LOCALES)[number]["code"];
 export const DEFAULT_LOCALE: Locale = "pt-BR";
 export type MessageKey = BaseKey | ExtraKey;
 
-export interface Prefs { interface: Locale; explanation: Locale | null } // null = follow interface
+export interface Prefs { interface: Locale; explanation: Locale | null; onboardingDismissed?: boolean } // null = follow interface
 const KEY = "language-journal:prefs";
 const defaults: Prefs = { interface: DEFAULT_LOCALE, explanation: null };
 let prefs = defaults;
@@ -31,7 +31,7 @@ function load() {
   loaded = true;
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) ?? "null");
-    if (raw) prefs = { interface: isLocale(raw.interface) ? raw.interface : DEFAULT_LOCALE, explanation: isLocale(raw.explanation) ? raw.explanation : null };
+    if (raw) prefs = { interface: isLocale(raw.interface) ? raw.interface : DEFAULT_LOCALE, explanation: isLocale(raw.explanation) ? raw.explanation : null, onboardingDismissed: raw.onboardingDismissed === true };
   } catch { /* ignore */ }
 }
 const hooksPrefs = new Set<() => void>();

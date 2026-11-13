@@ -36,4 +36,11 @@ describe("guest data migration", () => {
     const m = mergeStates(st({ entries: [entry({ status: "draft" })] }), st({ entries: [entry({ status: "complete" })] }));
     expect(m.entries[0]!.status).toBe("complete");
   });
+  it("keeps both assessment attempts without duplicates and preserves explicit completion", () => {
+    const a = { id: "a", at: "2026-11-13", answers: [[0]], correct: 1, total: 1 };
+    const b = { ...a, id: "b" };
+    const m = mergeStates(st({ assessments: { "j/ep1": [a] }, completed: { "j/ep1": "2026-11-13" } }), st({ assessments: { "j/ep1": [a, b] } }));
+    expect(m.assessments["j/ep1"]?.map((x) => x.id)).toEqual(["a", "b"]);
+    expect(m.completed["j/ep1"]).toBe("2026-11-13");
+  });
 });

@@ -109,6 +109,8 @@ export type Database = {
       }
       user_state: {
         Row: {
+          assessments: Json
+          completed: Json
           goals: Json
           last_episode: Json | null
           last_visit: Json
@@ -120,6 +122,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          assessments?: Json
+          completed?: Json
           goals?: Json
           last_episode?: Json | null
           last_visit?: Json
@@ -131,6 +135,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          assessments?: Json
+          completed?: Json
           goals?: Json
           last_episode?: Json | null
           last_visit?: Json

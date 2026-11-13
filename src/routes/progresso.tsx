@@ -3,6 +3,7 @@ import { journals } from "@/lib/content";
 import { useStore, completedEpisodes } from "@/lib/store";
 import { ProgressBar } from "@/components/BookCard";
 import { useI18n } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/progresso")({
   head: () => ({
@@ -44,6 +45,7 @@ function ProgressPage() {
     <div className="mx-auto max-w-5xl px-6 py-14">
       <h1 className="text-5xl">{t("nav.progress")}</h1>
       <p className="mt-4 font-serif text-xl text-muted-foreground">{t("progress.intro")}</p>
+      {!active.length && !s.entries.length && !s.vocab.length && <div className="mt-6"><p className="text-muted-foreground">{t("onboard.write")}</p><Button asChild className="mt-4 h-auto whitespace-normal"><Link to="/episodio/$journalId/$episodeId" params={{ journalId: "les-jours-de-camille", episodeId: "la-lettre" }}>{t("onboard.start")}</Link></Button></div>}
 
       <dl className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
         {stats.map(([k, v]) => (

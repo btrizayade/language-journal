@@ -1,5 +1,7 @@
 import camilleCover from "@/assets/cover-camille.jpg";
 import lukasCover from "@/assets/cover-lukas.jpg";
+import inesRecording from "@/assets/media/message-ines.mp3.asset.json";
+import kruegerRecording from "@/assets/media/herr-krueger.mp3.asset.json";
 
 export type Format = "reading" | "listening" | "watching";
 export type ActivityType =
@@ -33,6 +35,7 @@ export interface Episode {
   minutes: number;
   format: Format;
   mediaUrl?: string;
+  mediaSeconds?: number;
   subtitlesUrl?: string; // WebVTT, original language
   documentLabel?: string;
   body?: string[];
@@ -146,6 +149,8 @@ export const journals: Journal[] = [
         id: "message-ines",
         number: 2,
         title: "Le message d'Inès",
+        mediaUrl: inesRecording.url,
+        mediaSeconds: 45.36,
         intro: "Camille conta tudo à amiga. A resposta chega em forma de mensagem de voz.",
         context: "Na mesma noite, Camille manda uma foto do envelope para Inès. Na manhã seguinte, recebe uma longa mensagem de voz.",
         minutes: 10,
@@ -384,6 +389,8 @@ export const journals: Journal[] = [
         id: "herr-krueger",
         number: 3,
         title: "Die Stimme von Herrn Krüger",
+        mediaUrl: kruegerRecording.url,
+        mediaSeconds: 48.92,
         intro: "Herr Krüger não abre a porta — mas deixa uma mensagem.",
         context: "Lukas deixou um bilhete na caixa de correio do terceiro andar com seu número. À noite, recebe uma mensagem de voz.",
         minutes: 10,

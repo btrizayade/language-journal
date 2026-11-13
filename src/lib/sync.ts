@@ -16,7 +16,7 @@ export const useSync = () => useSyncExternalStore((l) => { listeners.add(l); ret
 
 const userKey = (id: string) => `language-journal:user:${id}`;
 const handledKey = (id: string) => `language-journal:guest-handled:${id}`;
-const fingerprint = (s: State) => `${s.entries.map((e) => e.id + e.updatedAt).join()}|${s.vocab.length}|${s.passages.length}|${Object.keys(s.bookmarks).length}|${Object.keys(s.opened).length}`;
+const fingerprint = (s: State) => `${s.entries.map((e) => e.id + e.updatedAt).join()}|${s.vocab.length}|${s.passages.length}|${Object.keys(s.bookmarks).length}|${Object.keys(s.opened).length}|${JSON.stringify(s.assessments)}|${JSON.stringify(s.completed)}`;
 
 let synced: State = emptyState; // what the account is known to hold
 let timer: ReturnType<typeof setTimeout> | undefined;
@@ -41,6 +41,7 @@ async function pull(uid: string): Promise<{ state: State; prefs: Prefs | null; r
     bookmarks: Object.fromEntries((b.data ?? []).map((r) => [r.episode_key, r.created_at])),
     opened: (us?.opened ?? {}) as State["opened"], lastVisit: (us?.last_visit ?? {}) as State["lastVisit"],
     goals: (us?.goals ?? {}) as State["goals"], pending: (us?.pending ?? {}) as State["pending"],
+    completed: (us?.completed ?? {}) as State["completed"], assessments: (us?.assessments ?? {}) as unknown as State["assessments"],
     ...(us?.last_episode ? { lastEpisode: us.last_episode as unknown as NonNullable<State["lastEpisode"]> } : {}),
   });
   return { state, prefs: (us?.prefs as Prefs | null) ?? null, reading: (us?.reading as ReadingPrefs | null) ?? null };
@@ -69,8 +70,8 @@ async function push(uid: string, from: State, to: State) {
   const goneB = Object.keys(from.bookmarks).filter((k) => !(k in to.bookmarks));
   if (goneB.length) ops.push(supabase.from("bookmarks").delete().eq("user_id", uid).in("episode_key", goneB));
 
-  if (from.opened !== to.opened || from.lastVisit !== to.lastVisit || from.lastEpisode !== to.lastEpisode || from.goals !== to.goals || from.pending !== to.pending) {
-    ops.push(supabase.from("user_state").upsert({ user_id: uid, opened: to.opened, last_visit: to.lastVisit, last_episode: (to.lastEpisode ?? null) as never, goals: to.goals as never, pending: to.pending as never, updated_at: new Date().toISOString() }));
+  if (from.opened !== to.opened || from.lastVisit !== to.lastVisit || from.lastEpisode !== to.lastEpisode || from.goals !== to.goals || from.pending !== to.pending || from.completed !== to.completed || from.assessments !== to.assessments) {
+    ops.push(supabase.from("user_state").upsert({ user_id: uid, opened: to.opened, last_visit: to.lastVisit, last_episode: (to.lastEpisode ?? null) as never, goals: to.goals as never, pending: to.pending as never, completed: to.completed as never, assessments: to.assessments as never, updated_at: new Date().toISOString() }));
   }
   const results = await Promise.all(ops);
   const failed = results.find((r) => r.error);

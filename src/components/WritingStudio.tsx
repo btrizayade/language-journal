@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { countWords, type Episode, type Journal } from "@/lib/content";
-import { autosave, epKey, persistEntry, setGoal, useStore, type Entry } from "@/lib/store";
+import { autosave, completeEpisode, epKey, persistEntry, setGoal, useStore, type Entry } from "@/lib/store";
+import { Button } from "@/components/ui/button";
+import { Check, Save } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Link } from "@tanstack/react-router";
 import { useSync } from "@/lib/sync";
@@ -15,14 +17,15 @@ export function WritingStudio({ journal, episode, entry, explLang = "pt-BR" }: {
   const [id, setId] = useState(entry?.id);
   const [autoState, setAutoState] = useState<"idle" | "saving" | "saved">("idle");
   const typed = useRef(false);
+  const autoTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => { setText((entry && s.pending[entry.id]?.content) ?? entry?.content ?? ""); setId(entry?.id); typed.current = false; }, [entry?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Autosave 1.2s after the learner stops typing.
   useEffect(() => {
     if (!typed.current) return;
     setAutoState("saving");
-    const h = setTimeout(() => { const newId = autosave(journal.id, episode.id, text, id); if (newId) setId(newId); setAutoState("saved"); }, 1200);
-    return () => clearTimeout(h);
+    autoTimer.current = setTimeout(() => { const newId = autosave(journal.id, episode.id, text, id); if (newId) setId(newId); setAutoState("saved"); }, 1200);
+    return () => clearTimeout(autoTimer.current);
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const p = episode.prompt;
@@ -35,6 +38,7 @@ export function WritingStudio({ journal, episode, entry, explLang = "pt-BR" }: {
 
   function save(status: Entry["status"]) {
     if (!text.trim()) { toast.error(t("studio.empty")); return; }
+    clearTimeout(autoTimer.current);
     const e = persistEntry(journal.id, episode.id, text, status, id);
     setId(e.id); typed.current = false; setAutoState("idle");
     toast.success(status === "complete" ? t("studio.savedComplete") : t("studio.savedDraft"));
@@ -86,9 +90,15 @@ export function WritingStudio({ journal, episode, entry, explLang = "pt-BR" }: {
         <p className="basis-full text-xs text-muted-foreground md:order-last">{t("studio.completeHint")}</p>
         {ready && !user && <p className="basis-full text-xs text-muted-foreground md:order-last"><Link to="/entrar" className="underline">{t("guest.nudge")}</Link></p>}
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => save("draft")} className="rounded-full border px-5 py-2 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">{t("studio.saveDraft")}</button>
-          <button onClick={() => save("complete")} className="rounded-full bg-primary px-5 py-2 text-primary-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">{t("studio.complete")}</button>
+          <Button variant="outline" onClick={() => save("draft")}><Save />{t("studio.saveDraft")}</Button>
+          <Button onClick={() => save("complete")}><Save />{t("studio.saveFinal")}</Button>
         </div>
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t p-4 md:px-8">
+        <p className="text-sm text-muted-foreground">{s.completed[epKey(journal.id, episode.id)] ? t("status.completed") : t("studio.finishHint")}</p>
+        <Button variant="outline" disabled={current?.status !== "complete" || !!pending || text !== current.content || !!s.completed[epKey(journal.id, episode.id)]} onClick={() => {
+          if (window.confirm(t("studio.confirmFinish"))) { completeEpisode(journal.id, episode.id); toast.success(t("status.completed")); }
+        }}><Check />{t("studio.complete")}</Button>
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import libraryHero from "@/assets/library-panorama.jpg";
 import { Decoration, SparkleField } from "@/components/decorations/Decoration";
 import { useInteractiveScene, Reveal } from "@/components/interactions";
 import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
+import { FirstStory } from "@/components/FirstStory";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -61,6 +62,7 @@ function Library() {
       </section>
       <div className="mx-auto max-w-6xl px-6">
       <IllustratedBoundary variant="transition" />
+      <FirstStory />
       <ContinueLearning />
 
       {started.length > 0 && (

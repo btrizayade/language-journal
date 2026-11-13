@@ -23,7 +23,10 @@ export interface SavedVocab {
   due: string; // iso date of next review
 }
 export interface Passage { id: string; journalId: string; episodeId: string; text: string; note: string; createdAt: string }
+export interface AssessmentAttempt { id: string; at: string; answers: number[][]; correct: number; total: number }
 export interface State {
+  completed: Record<string, string>;
+  assessments: Record<string, AssessmentAttempt[]>;
   entries: Entry[];
   vocab: SavedVocab[];
   passages: Passage[];
@@ -37,7 +40,7 @@ export interface State {
 
 export const GUEST_KEY = "language-journal:v1";
 let KEY = GUEST_KEY;
-export const emptyState: State = { entries: [], vocab: [], passages: [], bookmarks: {}, pending: {}, goals: {}, opened: {}, lastVisit: {} };
+export const emptyState: State = { completed: {}, assessments: {}, entries: [], vocab: [], passages: [], bookmarks: {}, pending: {}, goals: {}, opened: {}, lastVisit: {} };
 const empty = emptyState;
 let state: State = empty;
 let loaded = false;
@@ -53,7 +56,7 @@ function load() {
     const uid = tokenKey && (JSON.parse(localStorage.getItem(tokenKey) ?? "null")?.user?.id as string | undefined);
     if (uid) KEY = `language-journal:user:${uid}`;
     const raw = localStorage.getItem(KEY);
-    if (raw) { const r = JSON.parse(raw); state = { ...empty, ...r, vocab: dedupeVocab((r.vocab ?? []).map(normalizeVocab)) }; }
+    if (raw) state = normalizeState(JSON.parse(raw));
   } catch { /* ignore */ }
 }
 const changeHooks = new Set<(prev: State, next: State) => void>();
@@ -66,7 +69,10 @@ function set(next: State) {
   listeners.forEach((l) => l());
   changeHooks.forEach((h) => h(prev, next));
 }
-export const normalizeState = (r: Partial<State>): State => ({ ...empty, ...r, vocab: dedupeVocab((r.vocab ?? []).map(normalizeVocab)) });
+export const normalizeState = (r: Partial<State>): State => ({ ...empty, ...r,
+  // Only legacy copies lack this field: preserve their previously completed episodes.
+  completed: r.completed ?? Object.fromEntries((r.entries ?? []).filter((e) => e.status === "complete").map((e) => [epKey(e.journalId, e.episodeId), e.updatedAt])),
+  vocab: dedupeVocab((r.vocab ?? []).map(normalizeVocab)) });
 /** Reads a saved state without making it current (used to detect guest data before migration). */
 export function readSaved(key: string): State | null {
   try { const raw = localStorage.getItem(key); return raw ? normalizeState(JSON.parse(raw)) : null; } catch { return null; }
@@ -81,7 +87,7 @@ export function swapState(next: State, key: string) {
   try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
   listeners.forEach((l) => l());
 }
-export const hasData = (s: State | null) => !!s && (s.entries.length + s.vocab.length + s.passages.length + Object.keys(s.bookmarks).length + Object.keys(s.opened).length) > 0;
+export const hasData = (s: State | null) => !!s && (s.entries.length + s.vocab.length + s.passages.length + Object.keys(s.bookmarks).length + Object.keys(s.opened).length + Object.keys(s.assessments).length + Object.keys(s.completed).length) > 0;
 
 export function useStore(): State {
   return useSyncExternalStore(
@@ -208,14 +214,23 @@ export function setGoal(journalId: string, episodeId: string, goal: [number, num
 }
 
 export type EpisodeStatus = "notStarted" | "inProgress" | "writingPending" | "completed";
-/** Completed only when a final writing entry is saved; opening alone never completes an episode. */
+/** Saving writing or comprehension never completes an episode. */
 export function episodeStatus(s: State, journalId: string, episodeId: string): EpisodeStatus {
   const es = s.entries.filter((e) => e.journalId === journalId && e.episodeId === episodeId);
-  if (es.some((e) => e.status === "complete")) return "completed";
+  if (s.completed[epKey(journalId, episodeId)]) return "completed";
   if (es.length) return "writingPending";
   if ((s.opened[journalId] ?? []).includes(episodeId)) return "inProgress";
   return "notStarted";
 }
 export function completedEpisodes(s: State, journalId: string) {
-  return new Set(s.entries.filter((e) => e.journalId === journalId && e.status === "complete").map((e) => e.episodeId));
+  return new Set(Object.keys(s.completed).filter((k) => k.startsWith(`${journalId}/`)).map((k) => k.slice(journalId.length + 1)));
 }
+export function completeEpisodeIn(s: State, journalId: string, episodeId: string): State {
+  if (!s.entries.some((e) => e.journalId === journalId && e.episodeId === episodeId && e.status === "complete")) return s;
+  return { ...s, completed: { ...s.completed, [epKey(journalId, episodeId)]: new Date().toISOString() } };
+}
+export function completeEpisode(journalId: string, episodeId: string) { load(); set(completeEpisodeIn(state, journalId, episodeId)); }
+export function saveAssessmentIn(s: State, key: string, attempt: AssessmentAttempt): State {
+  return { ...s, assessments: { ...s.assessments, [key]: [...(s.assessments[key] ?? []), attempt] } };
+}
+export function saveAssessment(key: string, attempt: AssessmentAttempt) { load(); set(saveAssessmentIn(state, key, attempt)); }

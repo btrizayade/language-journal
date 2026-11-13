@@ -7,6 +7,7 @@ import { ProgressBar } from "@/components/BookCard";
 import { Check } from "lucide-react";
 import { Decoration, SparkleField } from "@/components/decorations/Decoration";
 import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
+import { lessonTiming } from "@/lib/learning";
 
 export const Route = createFileRoute("/diario/$journalId")({
   loader: ({ params }) => {
@@ -91,7 +92,7 @@ function JournalPage() {
                   <p className="font-display text-xl">{e.title}</p>
                   <p className="font-serif text-muted-foreground">{e.intro}</p>
                 </div>
-                <span className="hidden sm:inline text-xs uppercase tracking-[0.15em] text-muted-foreground">{t(`format.${e.format}`)} · {e.minutes} min</span>
+                <span className="hidden sm:inline text-xs uppercase tracking-[0.15em] text-muted-foreground">{t(`format.${e.format}`)} · ~{lessonTiming(e).total} min</span>
                 {(() => { const st = episodeStatus(s, j.id, e.id); return (
                   <span className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span className="hidden md:inline">{t(`status.${st}`)}</span>

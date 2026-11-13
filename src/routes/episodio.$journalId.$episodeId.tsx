@@ -11,6 +11,8 @@ import { useLocalizedJournal } from "@/lib/content-l10n";
 import { AudioPlayer, VideoPlayer } from "@/components/MediaPlayer";
 import { WritingStudio } from "@/components/WritingStudio";
 import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
+import { ComprehensionPractice } from "@/components/ComprehensionPractice";
+import { lessons, lessonTiming, learningText } from "@/lib/learning";
 
 export const Route = createFileRoute("/episodio/$journalId/$episodeId")({
   loader: ({ params }) => {
@@ -41,7 +43,8 @@ function EpisodePage() {
   const e = getEpisode(j, episodeId)!;
   const xl = lx.lang;
   const s = useStore();
-  const { t, langName } = useI18n();
+  const { t, langName, explanation } = useI18n();
+  const timing = lessonTiming(e);
   const ptOnly = lx.fallback;
   useEffect(() => { markOpened(j.id, e.id); }, [j.id, e.id]);
   const idx = j.episodes.indexOf(e);
@@ -71,13 +74,22 @@ function EpisodePage() {
         <p className="mt-5 font-serif text-xl text-muted-foreground">{e.intro}</p>
         <div className="mt-6 flex justify-center gap-3 text-sm">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1"><Icon className="size-4" aria-hidden /> {t(`format.${e.format}`)}</span>
-          <span className="rounded-full border px-3 py-1">{e.minutes} min</span>
+          <span className="rounded-full border px-3 py-1">~{timing.total} min</span>
           <span className="rounded-full border px-3 py-1">{langName(j.languageCode)} {j.level}</span>
         </div>
         <p className="mx-auto mt-8 max-w-xl border-y py-4 font-serif italic">{e.context}</p>
+        <p className="mt-4 text-sm text-muted-foreground">{t("lesson.time", timing)}</p>
       </header>
 
+      <section className="mt-8" aria-labelledby="lesson-objectives">
+        <h2 id="lesson-objectives" className="text-xl">{t("lesson.objectives")}</h2>
+        <ul lang={explanation} className="mt-3 list-disc space-y-2 pl-5 text-muted-foreground">{lessons[e.id]?.objectives.map((objective, i) => <li key={i}>{learningText(objective, explanation)}</li>)}</ul>
+      </section>
+
       <section aria-label={t("episode.content")} className="mt-12"><PassageSaver journal={j} episode={e}><Media journal={j} episode={e} /></PassageSaver></section>
+
+      <ComprehensionPractice key={e.id} journalId={j.id} episodeId={e.id} language={j.languageCode} />
+      <p className="mt-8 text-sm text-muted-foreground">{t("lesson.optional")}</p>
 
       <Section title={t("episode.langTitle")} kicker={t("episode.langKicker")}>
         <IllustratedBoundary variant="quiet" />

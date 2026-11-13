@@ -6,6 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { useStore, updateVocab, deleteVocab, dueVocab, type SavedVocab, type VocabStatus, type VocabCategory } from "@/lib/store";
 import { Decoration } from "@/components/decorations/Decoration";
 import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/vocabulario")({
   head: () => ({
@@ -86,10 +87,12 @@ function VocabPage() {
         <div className="mt-16 rounded-xl border border-dashed p-12 text-center">
           <p className="font-display text-2xl">{t("vocab.emptyTitle")}</p>
           <p className="mt-2 text-muted-foreground">{t("progress.vocabEmpty")}</p>
+          <p className="mt-6 text-xs text-muted-foreground">{t("empty.example")}</p>
+          <p lang="fr" className="mt-2 font-serif text-xl">la librairie · Je travaille dans une petite librairie.</p>
           <Link to="/" className="mt-6 inline-flex rounded-full bg-primary px-5 py-2 text-primary-foreground">{t("entries.goLibrary")}</Link>
         </div>
       ) : list.length === 0 ? (
-        <p className="mt-12 text-center text-muted-foreground">{t("vocab.noMatch")}</p>
+        <div className="mt-12 text-center"><p className="text-muted-foreground">{t("vocab.noMatch")}</p><Button className="mt-4" variant="outline" onClick={() => { setQ(""); setLang("all"); setJournal("all"); setCat("all"); setStatus("all"); }}>{t("empty.filters")}</Button></div>
       ) : (
         <ul className="mt-10 grid gap-4 md:grid-cols-2">{list.map((v) => <VocabCard key={v.key} v={v} />)}</ul>
       )}

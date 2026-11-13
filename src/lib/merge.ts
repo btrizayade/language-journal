@@ -30,7 +30,8 @@ export function mergeStates(cloud: State, local: State): State {
   for (const p of local.passages) {
     const i = passages.findIndex((x) => x.id === p.id || (x.journalId === p.journalId && x.episodeId === p.episodeId && x.text === p.text));
     if (i < 0) { passages.push(p); continue; }
-    const c = passages[i]!;
+    const c = passages[i];
+    if (!c) continue;
     if (p.note.trim() && p.note !== c.note && !c.note.includes(p.note)) passages[i] = { ...c, note: c.note ? `${c.note}\n\n${p.note}` : p.note };
   }
 
@@ -42,6 +43,10 @@ export function mergeStates(cloud: State, local: State): State {
   const lastEpisode = !cloud.lastEpisode ? local.lastEpisode : !local.lastEpisode ? cloud.lastEpisode : cloud.lastEpisode.at >= local.lastEpisode.at ? cloud.lastEpisode : local.lastEpisode;
 
   return {
+    completed: { ...local.completed, ...cloud.completed },
+    assessments: Object.fromEntries([...new Set([...Object.keys(cloud.assessments), ...Object.keys(local.assessments)])].map((key) => [key,
+      [...new Map([...(local.assessments[key] ?? []), ...(cloud.assessments[key] ?? [])].map((a) => [a.id, a])).values()].sort((a, b) => a.at.localeCompare(b.at)),
+    ])),
     entries: [...entries.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     vocab: [...vocab.values()],
     passages: passages.sort((a, b) => b.createdAt.localeCompare(a.createdAt)),

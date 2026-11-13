@@ -5,6 +5,7 @@ import { BookmarkCheck } from "lucide-react";
 import { journals, languageCodes, getJournal, getEpisode } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { useStore, updatePassage, deletePassage, toggleBookmark, type Passage } from "@/lib/store";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/notas")({
   head: () => ({
@@ -49,6 +50,9 @@ function NotesPage() {
           {languageCodes.map((l) => <option key={l} value={l}>{langName(l)}</option>)}
         </select>
       </div>
+
+      {(journal !== "all" || lang !== "all") && <Button className="mt-4" variant="outline" onClick={() => { setJournal("all"); setLang("all"); }}>{t("empty.filters")}</Button>}
+      {!s.passages.length && !Object.keys(s.bookmarks).length && <aside className="mt-8 border-l-2 border-primary pl-4"><p className="text-xs text-muted-foreground">{t("empty.example")}</p><blockquote lang="fr" className="mt-2 font-serif text-xl italic">Chaque livre a déjà eu une autre vie.</blockquote><Button asChild variant="link" className="mt-2 h-auto whitespace-normal"><Link to="/episodio/$journalId/$episodeId" params={{ journalId: "les-jours-de-camille", episodeId: "la-lettre" }}>{t("onboard.start")}</Link></Button></aside>}
 
       <section className="mt-12" aria-labelledby="marks">
         <h2 id="marks" className="text-3xl">{t("notes.bookmarks")}</h2>

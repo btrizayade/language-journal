@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { saveEntry, completedEpisodes, toggleVocabIn, scheduleReview, autosaveIn, addPassageIn, normalizeVocab } from "./store";
+import { saveEntry, completedEpisodes, completeEpisodeIn, saveAssessmentIn, normalizeState, toggleVocabIn, scheduleReview, autosaveIn, addPassageIn, normalizeVocab } from "./store";
 
 import { emptyState as empty } from "./store";
 
@@ -11,11 +11,29 @@ describe("writing entries", () => {
     expect(b.entry.revisions.map((r) => r.content)).toEqual(["Premier texte"]);
     expect(b.state.entries).toHaveLength(1);
   });
-  it("counts an episode complete only when its entry is marked complete", () => {
+  it("saving either a draft or finished entry does not complete the episode", () => {
     const a = saveEntry(empty, "j", "e1", "brouillon", "draft");
     expect(completedEpisodes(a.state, "j").has("e1")).toBe(false);
     const b = saveEntry(a.state, "j", "e1", "fini", "complete", a.entry.id);
-    expect(completedEpisodes(b.state, "j").has("e1")).toBe(true);
+    expect(completedEpisodes(b.state, "j").has("e1")).toBe(false);
+  });
+  it("the explicit completion action marks an episode with a saved final entry", () => {
+    const a = saveEntry(empty, "j", "e1", "fini", "complete");
+    expect(completedEpisodes(completeEpisodeIn(a.state, "j", "e1"), "j").has("e1")).toBe(true);
+  });
+  it("cannot complete an episode with only a draft", () => {
+    const a = saveEntry(empty, "j", "e1", "brouillon", "draft");
+    expect(completeEpisodeIn(a.state, "j", "e1").completed).toEqual({});
+  });
+  it("assessment completion never completes the episode", () => {
+    const s = saveAssessmentIn(empty, "j/e1", { id: "attempt", at: "2026-11-13", answers: [[0]], correct: 1, total: 1 });
+    expect(s.assessments["j/e1"]).toHaveLength(1);
+    expect(completedEpisodes(s, "j").size).toBe(0);
+  });
+  it("preserves completed progress in legacy browser copies", () => {
+    const a = saveEntry(empty, "j", "e1", "fini", "complete");
+    const { completed: _, ...legacy } = a.state;
+    expect(completedEpisodes(normalizeState(legacy), "j").has("e1")).toBe(true);
   });
 });
 
@@ -63,13 +81,15 @@ describe("autosave and passages", () => {
 
 import { episodeStatus as st, type State } from "./store";
 describe("episode status", () => {
-  it("opening alone is in progress, a draft is writing pending, a final entry completes", () => {
+  it("opening and saving remain pending until explicit completion", () => {
     let s: State = { ...empty, opened: { j: ["e"] } };
     expect(st(empty, "j", "e")).toBe("notStarted");
     expect(st(s, "j", "e")).toBe("inProgress");
     s = saveEntry(s, "j", "e", "Bonjour", "draft").state;
     expect(st(s, "j", "e")).toBe("writingPending");
     s = saveEntry(s, "j", "e", "Bonjour", "complete", s.entries[0]!.id).state;
+    expect(st(s, "j", "e")).toBe("writingPending");
+    s = completeEpisodeIn(s, "j", "e");
     expect(st(s, "j", "e")).toBe("completed");
   });
 });
