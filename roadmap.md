@@ -1,5 +1,14 @@
 # Full-page illustrated expansion
 
+# Final stability and data integrity pass
+
+- [x] Scope editors and flush captured edits safely on navigation, unmount and visibility changes.
+- [x] Preserve stable revision identities, empty drafts and competing pending versions during merges.
+- [x] Make local persistence failures visible; protect entry/state cloud writes with read-merge and conditional retry using existing fields.
+- [x] Correct writing localization and state labels in all five languages.
+- [x] Add 23 focused regressions; all 62 tests passed, automatic compilation reported build OK, and six real guest writing transitions passed.
+- [ ] Authenticated cross-device validation waits for a disposable test account or explicitly authorized isolated environment; no existing account was used. See stability-report.md for manual steps and remaining limitations.
+
 # Complete the learning experience
 
 - [x] Add localized objectives and four comprehension activities to each of the six episodes.

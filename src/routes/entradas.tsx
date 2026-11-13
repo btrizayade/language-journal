@@ -7,6 +7,7 @@ import { WritingStudio } from "@/components/WritingStudio";
 import { Decoration } from "@/components/decorations/Decoration";
 import { IllustratedBoundary } from "@/components/decorations/IllustratedBoundary";
 import { Button } from "@/components/ui/button";
+import { useLocalizedJournals } from "@/lib/content-l10n";
 
 export const Route = createFileRoute("/entradas")({
   head: () => ({
@@ -26,6 +27,7 @@ const sel = "rounded-md border bg-card px-3 py-2 text-sm focus-visible:outline-2
 
 function EntriesPage() {
   const s = useStore();
+  const localized = useLocalizedJournals();
   const { t, langName, date: fmt } = useI18n();
   const [journal, setJournal] = useState("all");
   const [lang, setLang] = useState("all");
@@ -101,7 +103,8 @@ function EntriesPage() {
       ) : (
         <ul className="mt-10 space-y-4">
           {list.map((e) => {
-            const j = getJournal(e.journalId), ep = j && getEpisode(j, e.episodeId);
+            const lx = localized.find((x) => x.journal.id === e.journalId);
+            const j = lx?.journal, ep = j && getEpisode(j, e.episodeId);
             if (!j || !ep) return <OrphanEntry key={e.id} e={e} />;
             const isOpen = open === e.id;
             return (
@@ -120,7 +123,7 @@ function EntriesPage() {
                 </div>
                 {isOpen && (
                   <div className="border-t p-5 space-y-6">
-                    <WritingStudio journal={j} episode={ep} entry={e} />
+                    <WritingStudio journal={j} episode={ep} entry={e} explLang={lx?.lang} />
                     {e.revisions.length > 0 && (
                       <div>
                         <h3 className="text-xl">{t("entries.previous")}</h3>

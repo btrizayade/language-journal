@@ -21,6 +21,38 @@ const fingerprint = (s: State) => `${s.entries.map((e) => e.id + e.updatedAt).jo
 let synced: State = emptyState; // what the account is known to hold
 let timer: ReturnType<typeof setTimeout> | undefined;
 let flushing: Promise<void> | null = null;
+let accountLoaded = false;
+
+/** Compare-and-swap uses the existing updated_at column; RLS remains the caller's. */
+export async function writeWithRetry(table: "writing_entries" | "user_state", identity: Record<string, string>, build: (row: Record<string, unknown> | null) => Record<string, unknown>) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    let read = supabase.from(table).select("*");
+    for (const [key, value] of Object.entries(identity)) read = read.eq(key, value);
+    const { data, error } = await read.maybeSingle();
+    if (error) throw error;
+    const row = data as Record<string, unknown> | null;
+    const prior = typeof row?.['updated_at'] === "string" ? row['updated_at'] : "";
+    const date = new Date(Math.max(Date.now(), (Date.parse(prior) || 0) + 1)).toISOString();
+    const value = { ...build(row), ...identity, updated_at: date };
+    if (!row) {
+      const result = await supabase.from(table).insert(value as never).select("*").maybeSingle();
+      if (!result.error && result.data) return result.data;
+      if (result.error?.code === "23505") continue;
+      throw result.error ?? new Error("Insert did not persist");
+    }
+    let update = supabase.from(table).update(value as never).eq("updated_at", prior);
+    for (const [key, id] of Object.entries(identity)) update = update.eq(key, id);
+    const result = await update.select("*").maybeSingle();
+    if (result.error) throw result.error;
+    if (result.data) return result.data;
+  }
+  throw new Error("Concurrent changes; retry required");
+}
+function entryFromRow(r: Record<string, unknown>): Entry {
+  return { id: String(r['id']), journalId: String(r['journal_id']), episodeId: String(r['episode_id']), content: String(r['content']),
+    status: r['status'] as Entry["status"], revisions: (r['revisions'] ?? []) as Entry["revisions"], createdAt: String(r['created_at']), updatedAt: String(r['updated_at']),
+    ...(r['content'] === "" && r['status'] === "draft" ? { clearedAt: String(r['updated_at']) } : {}) };
+}
 
 async function pull(uid: string): Promise<{ state: State; prefs: Prefs | null; reading: ReadingPrefs | null }> {
   const [e, v, p, b, u] = await Promise.all([
@@ -34,13 +66,13 @@ async function pull(uid: string): Promise<{ state: State; prefs: Prefs | null; r
   if (err) throw err;
   const us = u.data;
   const state = normalizeState({
-    entries: (e.data ?? []).map((r) => ({ id: r.id, journalId: r.journal_id, episodeId: r.episode_id, content: r.content, status: r.status as Entry["status"], revisions: r.revisions as unknown as Entry["revisions"], createdAt: r.created_at, updatedAt: r.updated_at }))
+    entries: (e.data ?? []).map((r) => ({ id: r['id'], journalId: r['journal_id'], episodeId: r['episode_id'], content: r['content'], status: r['status'] as Entry["status"], revisions: r['revisions'] as unknown as Entry["revisions"], createdAt: r['created_at'], updatedAt: r['updated_at'] }))
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    vocab: (v.data ?? []).map((r) => r.data as unknown as State["vocab"][number]),
-    passages: (p.data ?? []).map((r) => ({ id: r.id, journalId: r.journal_id, episodeId: r.episode_id, text: r.text, note: r.note, createdAt: r.created_at })),
-    bookmarks: Object.fromEntries((b.data ?? []).map((r) => [r.episode_key, r.created_at])),
+    vocab: (v.data ?? []).map((r) => r['data'] as unknown as State["vocab"][number]),
+    passages: (p.data ?? []).map((r) => ({ id: r['id'], journalId: r['journal_id'], episodeId: r['episode_id'], text: r['text'], note: r['note'], createdAt: r['created_at'] })),
+    bookmarks: Object.fromEntries((b.data ?? []).map((r) => [r['episode_key'], r['created_at']])),
     opened: (us?.opened ?? {}) as State["opened"], lastVisit: (us?.last_visit ?? {}) as State["lastVisit"],
-    goals: (us?.goals ?? {}) as State["goals"], pending: (us?.pending ?? {}) as State["pending"],
+    goals: (us?.goals ?? {}) as State["goals"], pending: (us?.pending ?? {}) as unknown as State["pending"],
     completed: (us?.completed ?? {}) as State["completed"], assessments: (us?.assessments ?? {}) as unknown as State["assessments"],
     ...(us?.last_episode ? { lastEpisode: us.last_episode as unknown as NonNullable<State["lastEpisode"]> } : {}),
   });
@@ -48,10 +80,21 @@ async function pull(uid: string): Promise<{ state: State; prefs: Prefs | null; r
 }
 
 /** Sends only what changed since the last successful sync. Upserts by stable ids, so retries never duplicate. */
-async function push(uid: string, from: State, to: State) {
+async function push(uid: string, from: State, to: State): Promise<State> {
   const ops: PromiseLike<{ error: unknown }>[] = [];
+  let persisted = to;
   const changedEntries = to.entries.filter((e) => !from.entries.includes(e));
-  if (changedEntries.length) ops.push(supabase.from("writing_entries").upsert(changedEntries.map((e) => ({ id: e.id, user_id: uid, journal_id: e.journalId, episode_id: e.episodeId, content: e.content, status: e.status, revisions: e.revisions as never, created_at: e.createdAt, updated_at: e.updatedAt }))));
+  for (const entry of changedEntries) {
+    let merged = entry;
+    const result = await writeWithRetry("writing_entries", { id: entry.id, user_id: uid }, (row) => {
+      const remote = row ? entryFromRow(row) : undefined;
+      merged = mergeStates({ ...emptyState, entries: remote ? [remote] : [] }, { ...emptyState, entries: [entry] }).entries[0] ?? entry;
+      return { journal_id: merged.journalId, episode_id: merged.episodeId, content: merged.content, status: merged.status, revisions: merged.revisions, created_at: merged.createdAt };
+    });
+    // Preserve logical edit timestamps in memory until next remote read.
+    const saved = { ...merged, updatedAt: String(result.updated_at) };
+    persisted = { ...persisted, entries: persisted.entries.map((e) => e.id === saved.id ? saved : e) };
+  }
   const goneEntries = from.entries.filter((e) => !to.entries.some((x) => x.id === e.id)).map((e) => e.id);
   if (goneEntries.length) ops.push(supabase.from("writing_entries").delete().eq("user_id", uid).in("id", goneEntries));
 
@@ -71,22 +114,34 @@ async function push(uid: string, from: State, to: State) {
   if (goneB.length) ops.push(supabase.from("bookmarks").delete().eq("user_id", uid).in("episode_key", goneB));
 
   if (from.opened !== to.opened || from.lastVisit !== to.lastVisit || from.lastEpisode !== to.lastEpisode || from.goals !== to.goals || from.pending !== to.pending || from.completed !== to.completed || from.assessments !== to.assessments) {
-    ops.push(supabase.from("user_state").upsert({ user_id: uid, opened: to.opened, last_visit: to.lastVisit, last_episode: (to.lastEpisode ?? null) as never, goals: to.goals as never, pending: to.pending as never, completed: to.completed as never, assessments: to.assessments as never, updated_at: new Date().toISOString() }));
+    await writeWithRetry("user_state", { user_id: uid }, (row) => {
+      const remote = normalizeState({ opened: (row?.['opened'] ?? {}) as State["opened"], lastVisit: (row?.['last_visit'] ?? {}) as State["lastVisit"], goals: (row?.['goals'] ?? {}) as State["goals"], pending: (row?.['pending'] ?? {}) as State["pending"], completed: (row?.['completed'] ?? {}) as State["completed"], assessments: (row?.['assessments'] ?? {}) as State["assessments"], ...(row?.['last_episode'] ? { lastEpisode: row['last_episode'] as NonNullable<State["lastEpisode"]> } : {}) });
+      const m = mergeStates(remote, persisted);
+      persisted = { ...persisted, opened: m.opened, lastVisit: m.lastVisit, pending: m.pending, completed: m.completed, assessments: m.assessments, ...(m.lastEpisode ? { lastEpisode: m.lastEpisode } : {}) };
+      return { opened: m.opened, last_visit: m.lastVisit, last_episode: m.lastEpisode ?? null, goals: to.goals, pending: m.pending, completed: m.completed, assessments: m.assessments };
+    });
   }
   const results = await Promise.all(ops);
-  const failed = results.find((r) => r.error);
+  const failed = results.find((r) => r['error']);
   if (failed) throw failed.error;
+  return persisted;
 }
 
 export async function flush() {
   const uid = info.user?.id;
-  if (!uid) return;
+  if (!uid || !accountLoaded || currentKey() !== userKey(uid)) return;
   if (flushing) await flushing;
   const target = getState();
   if (target === synced) return;
   setInfo({ status: "saving" });
   flushing = push(uid, synced, target)
-    .then(() => { synced = target; setInfo({ status: getState() === synced ? "saved" : "saving" }); if (getState() !== synced) schedule(); })
+    .then((saved) => {
+      if (info.user?.id !== uid || currentKey() !== userKey(uid)) return;
+      const current = getState();
+      const next = current === target ? saved : mergeStates(saved, current);
+      synced = saved; swapState(next, userKey(uid));
+      setInfo({ status: next === saved ? "saved" : "saving" }); if (next !== saved) schedule();
+    })
     .catch((e) => { console.error("sync failed", e); setInfo({ status: "error" }); clearTimeout(timer); timer = setTimeout(flush, 8000); })
     .finally(() => { flushing = null; });
   await flushing;
@@ -95,32 +150,36 @@ const schedule = () => { clearTimeout(timer); timer = setTimeout(flush, 700); };
 
 async function pushPrefs() {
   const uid = info.user?.id;
-  if (!uid) return;
+  if (!uid || !accountLoaded) return;
   const { error } = await supabase.from("user_state").upsert({ user_id: uid, prefs: getPrefs() as never, reading: getReading() as never, updated_at: new Date().toISOString() });
-  if (error) console.error("prefs sync failed", error);
+  if (error) { console.error("prefs sync failed", error); setInfo({ status: "error" }); }
 }
 
 async function signedIn(user: User) {
+  accountLoaded = false;
   setInfo({ user, status: "loading" });
+  const key = userKey(user.id);
+  if (currentKey() !== key) swapState(readSaved(key) ?? emptyState, key);
   try {
     // Only an untouched copy of this same account may be replaced; anything done while loading is merged in.
-    const local = currentKey() === userKey(user.id) ? getState() : null;
     const cloud = await pull(user.id);
+    if (info.user?.id !== user.id || currentKey() !== key) return;
     synced = cloud.state;
     const after = currentKey() === userKey(user.id) ? getState() : null;
-    swapState(after && after !== local ? mergeStates(cloud.state, after) : cloud.state, userKey(user.id));
+    swapState(after ? mergeStates(cloud.state, after) : cloud.state, key);
+    accountLoaded = true;
     if (getState() !== synced) schedule();
     if (cloud.prefs) setPrefs(cloud.prefs, true); else void pushPrefs();
     if (cloud.reading) setReading(cloud.reading, true);
     const guest = readSaved(GUEST_KEY);
-    const offer = hasData(guest) && localStorage.getItem(handledKey(user.id)) !== fingerprint(guest!) ? guest : null;
+    const offer = guest && hasData(guest) && localStorage.getItem(handledKey(user.id)) !== fingerprint(guest) ? guest : null;
     setInfo({ status: "saved", offer, ready: true });
   } catch (e) {
     console.error(e);
     // Fall back to this device's copy of the account so nothing is lost; it syncs once the connection returns.
-    const cached = readSaved(userKey(user.id));
-    if (cached) swapState(cached, userKey(user.id));
+    if (info.user?.id !== user.id) return;
     setInfo({ status: "error", ready: true });
+    clearTimeout(timer); timer = setTimeout(() => { if (info.user?.id === user.id) void signedIn(user); }, 8000);
   }
 }
 
@@ -148,7 +207,7 @@ let started = false;
 export function startSync() {
   if (started || typeof window === "undefined") return;
   started = true;
-  onStoreChange(() => { if (info.user) schedule(); });
+  onStoreChange(() => { if (info.user && accountLoaded && currentKey() === userKey(info.user.id)) schedule(); });
   onPrefsChange(() => void pushPrefs());
   onReadingChange(() => void pushPrefs());
   supabase.auth.getUser().then(({ data }) => { if (data.user) void signedIn(data.user); else setInfo({ ready: true }); });
@@ -156,6 +215,7 @@ export function startSync() {
     if (event === "SIGNED_IN" && session?.user && session.user.id !== info.user?.id) void signedIn(session.user);
     if (event === "USER_UPDATED" && session?.user) setInfo({ user: session.user });
     if (event === "SIGNED_OUT" && info.user) {
+      accountLoaded = false;
       clearTimeout(timer);
       synced = emptyState;
       swapState(readSaved(GUEST_KEY) ?? emptyState, GUEST_KEY);
@@ -166,7 +226,7 @@ export function startSync() {
   window.addEventListener("focus", () => {
     const u = info.user;
     if (!u || getState() !== synced || flushing) return;
-    pull(u.id).then((c) => { if (info.user?.id === u.id && getState() === synced) { synced = c.state; swapState(c.state, userKey(u.id)); } }).catch(() => {});
+    pull(u.id).then((c) => { if (info.user?.id === u.id && getState() === synced) { const merged = mergeStates(c.state, getState()); synced = c.state; swapState(merged, userKey(u.id)); schedule(); } }).catch(() => setInfo({ status: "error" }));
   });
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") void flush(); });
 }

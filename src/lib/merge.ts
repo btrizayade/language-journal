@@ -1,22 +1,25 @@
 import type { Entry, Passage, SavedVocab, State } from "./store";
+import { mergeVersions, mergePending, timestamp, versionId } from "./versions";
 
 /**
  * Combines account data (cloud) with data saved in this browser (local) without losing either.
  * Cloud wins on conflicts; anything that would be overwritten is kept (as a revision or appended note).
  */
 export function mergeStates(cloud: State, local: State): State {
+  const pending: State["pending"] = {};
+  for (const id of new Set([...Object.keys(local.pending), ...Object.keys(cloud.pending)])) {
+    const value = mergePending(id, cloud.pending[id], local.pending[id]);
+    if (value) pending[id] = value;
+  }
   const entries = new Map<string, Entry>(cloud.entries.map((e) => [e.id, e]));
   for (const l of local.entries) {
     const c = entries.get(l.id);
     if (!c) { entries.set(l.id, l); continue; }
-    if (c.content === l.content) { entries.set(l.id, { ...c, status: c.status === "complete" || l.status === "complete" ? "complete" : "draft" }); continue; }
-    const [newer, older] = c.updatedAt >= l.updatedAt ? [c, l] : [l, c];
-    const revisions = [...c.revisions];
-    for (const r of [...l.revisions, { date: older.updatedAt, content: older.content }]) {
-      if (r.content.trim() && !revisions.some((x) => x.content === r.content)) revisions.push(r);
-    }
-    revisions.sort((a, b) => a.date.localeCompare(b.date));
-    entries.set(l.id, { ...newer, status: c.status === "complete" || l.status === "complete" ? "complete" : "draft", revisions });
+    const cmp = timestamp(c.updatedAt) - timestamp(l.updatedAt) || JSON.stringify([c.content, c.status]).localeCompare(JSON.stringify([l.content, l.status]));
+    const [newer, older] = cmp >= 0 ? [c, l] : [l, c];
+    const revisions = mergeVersions(c.id, c.revisions, l.revisions,
+      c.content !== l.content ? [{ id: versionId(c.id, older.updatedAt, older.content), date: older.updatedAt, content: older.content }] : []);
+    entries.set(l.id, { ...newer, status: c.content === l.content && (c.status === "complete" || l.status === "complete") ? "complete" : newer.status, revisions });
   }
 
   const vocab = new Map<string, SavedVocab>(cloud.vocab.map((v) => [v.key, v]));
@@ -51,7 +54,7 @@ export function mergeStates(cloud: State, local: State): State {
     vocab: [...vocab.values()],
     passages: passages.sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     bookmarks,
-    pending: { ...local.pending, ...cloud.pending },
+    pending,
     goals: { ...local.goals, ...cloud.goals },
     opened, lastVisit,
     ...(lastEpisode ? { lastEpisode } : {}),

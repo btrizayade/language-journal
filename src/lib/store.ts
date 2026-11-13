@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
+import { mergeVersions, versionId, type PendingVersion } from "./versions";
 
-export interface Revision { date: string; content: string }
+export interface Revision { id?: string | undefined; date: string; content: string }
 export interface Entry {
   id: string;
   journalId: string;
@@ -10,6 +11,7 @@ export interface Entry {
   content: string;
   status: "draft" | "complete";
   revisions: Revision[]; // earlier saved versions, oldest first
+  clearedAt?: string | undefined; // explicit intentionally empty draft; never a missing record
 }
 export type VocabStatus = "new" | "learning" | "mastered";
 export type VocabCategory = "word" | "expression";
@@ -31,7 +33,7 @@ export interface State {
   vocab: SavedVocab[];
   passages: Passage[];
   bookmarks: Record<string, string>; // "journalId/episodeId" -> iso date
-  pending: Record<string, { content: string; savedAt: string }>; // unsaved edits of completed entries, by entry id
+  pending: Record<string, PendingVersion>; // persisted edits plus conflict/resolution records
   goals: Record<string, [number, number]>; // "journalId/episodeId" -> personal word goal
   opened: Record<string, string[]>; // journalId -> episodeIds visited
   lastVisit: Record<string, string>; // journalId -> iso date
@@ -45,6 +47,14 @@ const empty = emptyState;
 let state: State = empty;
 let loaded = false;
 const listeners = new Set<() => void>();
+let storageFailed = false;
+const persistenceListeners = new Set<() => void>();
+const setStorageFailed = (value: boolean) => { storageFailed = value; persistenceListeners.forEach((l) => l()); };
+export const useStorageFailure = () => useSyncExternalStore((l) => { persistenceListeners.add(l); return () => persistenceListeners.delete(l); }, () => storageFailed, () => false);
+export function retryLocalPersistence() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); setStorageFailed(false); return true; }
+  catch { setStorageFailed(true); return false; }
+}
 
 function load() {
   if (loaded || typeof window === "undefined") return;
@@ -65,11 +75,13 @@ export function onStoreChange(fn: (prev: State, next: State) => void) { changeHo
 function set(next: State) {
   const prev = state;
   state = next;
-  try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
+  const persisted = retryLocalPersistence();
   listeners.forEach((l) => l());
   changeHooks.forEach((h) => h(prev, next));
+  if (!persisted) throw new Error("Local persistence failed; changes remain in memory");
 }
 export const normalizeState = (r: Partial<State>): State => ({ ...empty, ...r,
+  entries: (r.entries ?? []).map((e) => ({ ...e, revisions: mergeVersions(e.id, e.revisions ?? []) })),
   // Only legacy copies lack this field: preserve their previously completed episodes.
   completed: r.completed ?? Object.fromEntries((r.entries ?? []).filter((e) => e.status === "complete").map((e) => [epKey(e.journalId, e.episodeId), e.updatedAt])),
   vocab: dedupeVocab((r.vocab ?? []).map(normalizeVocab)) });
@@ -84,7 +96,7 @@ export const getState = () => { load(); return state; };
 export function swapState(next: State, key: string) {
   load();
   KEY = key; state = next;
-  try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
+  retryLocalPersistence();
   listeners.forEach((l) => l());
 }
 export const hasData = (s: State | null) => !!s && (s.entries.length + s.vocab.length + s.passages.length + Object.keys(s.bookmarks).length + Object.keys(s.opened).length + Object.keys(s.assessments).length + Object.keys(s.completed).length) > 0;
@@ -111,13 +123,14 @@ export function markOpened(journalId: string, episodeId: string) {
 /** Saves an entry. When the content of an existing entry changes, the previous version is kept in revisions. */
 export function saveEntry(s: State, journalId: string, episodeId: string, content: string, status: Entry["status"], id?: string): { state: State; entry: Entry } {
   const now = new Date().toISOString();
-  const existing = id ? s.entries.find((e) => e.id === id) : undefined;
+  const existing = id ? s.entries.find((e) => e.id === id && e.journalId === journalId && e.episodeId === episodeId) : undefined;
   let entry: Entry;
   if (existing) {
-    const revisions = existing.content !== content && existing.content.trim()
-      ? [...existing.revisions, { date: existing.updatedAt, content: existing.content }]
-      : existing.revisions;
-    entry = { ...existing, content, status, updatedAt: now, revisions };
+    const p = s.pending[existing.id];
+    const revisions = mergeVersions(existing.id, existing.revisions,
+      existing.content !== content ? [{ id: versionId(existing.id, existing.updatedAt, existing.content), date: existing.updatedAt, content: existing.content }] : [],
+      [...(p && !p.resolved && p.content !== content ? [p] : []), ...(p?.conflicts ?? [])].map((v) => ({ id: v.id, date: v.savedAt, content: v.content })));
+    entry = { ...existing, content, status, updatedAt: now, revisions, clearedAt: content === "" && status === "draft" ? now : undefined };
   } else {
     entry = { id: crypto.randomUUID(), journalId, episodeId, createdAt: now, updatedAt: now, content, status, revisions: [] };
   }
@@ -127,7 +140,10 @@ export function saveEntry(s: State, journalId: string, episodeId: string, conten
 export function persistEntry(...args: Parameters<typeof saveEntry> extends [State, ...infer R] ? R : never) {
   load();
   const r = saveEntry(state, ...args);
-  const { [r.entry.id]: _, ...pending } = r.state.pending;
+  const p = state.pending[r.entry.id];
+  const pending = { ...r.state.pending };
+  if (p) pending[r.entry.id] = { id: crypto.randomUUID(), content: r.entry.content, savedAt: r.entry.updatedAt, resolved: true,
+    resolvedIds: [...new Set([...(p.resolvedIds ?? []), ...[p, ...(p.conflicts ?? [])].map((v) => v.id ?? versionId(r.entry.id, v.savedAt, v.content))])] };
   set({ ...r.state, pending });
   return r.entry;
 }
@@ -198,13 +214,16 @@ export function deletePassage(id: string) { load(); set({ ...state, passages: st
 // Writing helpers
 /** Autosave: drafts are updated in place (no revision per keystroke); completed entries keep edits pending until saved. */
 export function autosaveIn(s: State, journalId: string, episodeId: string, content: string, id?: string): { state: State; id?: string | undefined } {
-  if (!content.trim()) return { state: s, id };
-  const existing = id ? s.entries.find((e) => e.id === id) : undefined;
+  const existing = id ? s.entries.find((e) => e.id === id && e.journalId === journalId && e.episodeId === episodeId) : undefined;
+  if (!existing && !content.trim()) return { state: s };
   const now = new Date().toISOString();
   if (!existing) { const r = saveEntry(s, journalId, episodeId, content, "draft"); return { state: r.state, id: r.entry.id }; }
-  if (existing.content === content) { const { [existing.id]: _, ...pending } = s.pending; return { state: { ...s, pending }, id }; }
-  if (existing.status === "draft") return { state: { ...s, entries: s.entries.map((e) => (e.id === id ? { ...e, content, updatedAt: now } : e)) }, id };
-  return { state: { ...s, pending: { ...s.pending, [existing.id]: { content, savedAt: now } } }, id };
+  if (existing.content === content && !s.pending[existing.id]) return { state: s, id };
+  if (existing.status === "draft") return { state: { ...s, entries: s.entries.map((e) => (e.id === id ? { ...e, content, updatedAt: now, clearedAt: content === "" ? now : undefined } : e)) }, id };
+  const previous = s.pending[existing.id];
+  if (previous && !previous.resolved && previous.content === content) return { state: s, id };
+  return { state: { ...s, pending: { ...s.pending, [existing.id]: { id: crypto.randomUUID(), content, savedAt: now,
+    conflicts: previous?.conflicts ?? [], resolvedIds: [...new Set([...(previous?.resolvedIds ?? []), ...(previous?.id ? [previous.id] : [])])] } } }, id };
 }
 export function autosave(...args: Parameters<typeof autosaveIn> extends [State, ...infer R] ? R : never) { load(); const r = autosaveIn(state, ...args); if (r.state !== state) set(r.state); return r.id; }
 export function clearPending(id: string) { load(); const { [id]: _, ...pending } = state.pending; set({ ...state, pending }); }
@@ -226,11 +245,12 @@ export function completedEpisodes(s: State, journalId: string) {
   return new Set(Object.keys(s.completed).filter((k) => k.startsWith(`${journalId}/`)).map((k) => k.slice(journalId.length + 1)));
 }
 export function completeEpisodeIn(s: State, journalId: string, episodeId: string): State {
-  if (!s.entries.some((e) => e.journalId === journalId && e.episodeId === episodeId && e.status === "complete")) return s;
+  if (s.completed[epKey(journalId, episodeId)] || !s.entries.some((e) => e.journalId === journalId && e.episodeId === episodeId && e.status === "complete" && (!s.pending[e.id] || s.pending[e.id]?.resolved))) return s;
   return { ...s, completed: { ...s.completed, [epKey(journalId, episodeId)]: new Date().toISOString() } };
 }
 export function completeEpisode(journalId: string, episodeId: string) { load(); set(completeEpisodeIn(state, journalId, episodeId)); }
 export function saveAssessmentIn(s: State, key: string, attempt: AssessmentAttempt): State {
+  if (s.assessments[key]?.some((a) => a.id === attempt.id)) return s;
   return { ...s, assessments: { ...s.assessments, [key]: [...(s.assessments[key] ?? []), attempt] } };
 }
 export function saveAssessment(key: string, attempt: AssessmentAttempt) { load(); set(saveAssessmentIn(state, key, attempt)); }
