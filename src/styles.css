@@ -270,7 +270,7 @@
 @media (max-width: 1279px) {
   .library-scene { min-height: 0; aspect-ratio: auto; }
   .library-scene-art { position: relative; height: auto; width: 100%; }
-  .library-scene-copy { width: auto; max-width: 36rem; margin: 0 auto; padding: 24px 24px 20px; }
+  .library-scene-copy { width: auto; max-width: 23rem; margin: 0 auto; padding: 36px 14px 20px; }
   .library-scene-copy h1 { font-size: 2rem; }
   .library-scene::after { display: none; }
   .library-scene > .magic-layer { display: none; }
